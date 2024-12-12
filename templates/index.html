@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Viewer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div class="window">
+        <!-- Toppmeny med vindusknapper -->
+        <div class="title-bar">
+            <span class="title">PDF Viewer</span>
+            <div class="window-controls">
+                <button class="control-btn min"><i class="fas fa-window-minimize"></i></button>
+                <button class="control-btn max"><i class="fas fa-window-maximize"></i></button>
+                <button class="control-btn close"><i class="fas fa-times"></i></button>
+            </div>
+        </div>
+
+        <!-- PDF Viewer Layout -->
+        <div class="viewer">
+            <!-- Sidepanel -->
+            <aside class="sidebar">
+                <div class="menu-item" onclick="loadContent('guiden')">
+                    <p>Side 1</p>
+                    <span>Hvordan flette PDF?</span>
+                </div>
+                <div class="menu-item" onclick="loadContent('historien')">
+                    <p>Side 2</p>
+                    <span>Historien om PDF-fletting</span>
+                </div>
+                <div class="menu-item" onclick="loadContent('kontakt')">
+                    <p>Side 3</p>
+                    <span>Kontakt oss</span>
+                </div>
+            </aside>
+
+            <!-- Hovedinnhold -->
+            <main class="pdf-page" id="main-content">
+                <h1>Hvordan flette PDF-filer</h1>
+                <p>Følg trinnene nedenfor for å flette PDF-dokumentene dine:</p>
+                <ol>
+                    <li>
+                        <strong>Last opp PDF-filer:</strong>
+                        Klikk på <input type="file" id="pdf-file" class="btn" name="pdf-file" accept="application/pdf" multiple onchange="addFiles()" required>
+                    </li>
+                    <li>
+                        <strong>Sorter filene:</strong>
+                        Dra og slipp filene i listen nedenfor for å angi ønsket rekkefølge.
+                        <ul class="file-list" id="file-list"></ul>
+                    </li>
+                    <li>
+                        <strong>Flett filene:</strong>
+                        Klikk på <button type="button" class="btn" onclick="uploadAndCombine()">Flett PDF</button> for å kombinere filene.
+                    </li>
+                    <li>
+                        <strong>Kombinert PDF:</strong>
+                        <p>Du kan endre navnet på den kombinerte filen nedenfor og laste den ned:</p>
+                        <div class="output-section">
+                        <div class="file-list-item">
+                            <input type="text" id="output-name" value="kombinert" class="rename-input">
+                            <span class="file-extension">.pdf</span>
+                            <button class="btn" id="download-btn" onclick="downloadCombinedPDF()" disabled>Last ned</button>
+                        </div>
+                    </div>
+
+                    </li>
+                </ol>
+            </main>
+        </div>
+
+        <!-- Statuslinje -->
+        <div class="status-bar">
+            <span>Side 1 av 1</span>
+            <span>100% Zoom</span>
+        </div>
+    </div>
+    <script src="/static/js/scripts.js"></script>
+</body>
+</html>
