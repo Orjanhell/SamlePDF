@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Fletter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+        }
+        .file-input {
+            margin-bottom: 15px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .output {
+            margin-top: 15px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>PDF Fletter</h1>
+        <form id="pdf-form">
+            <div class="file-input">
+                <label for="pdf-files">Last opp PDF-filer:</label>
+                <input type="file" id="pdf-files" name="pdf-files" accept="application/pdf" multiple required>
+                <p style="font-size: 0.9em; color: gray;">Første fil vil bli øverst i den sammenslåtte PDF-en.</p>
+            </div>
+            <button type="button" onclick="uploadAndCombine()">Flett PDF</button>
+        </form>
+        <div class="output" id="output"></div>
+    </div>
+
+    <script>
+        async function uploadAndCombine() {
+            const files = document.getElementById('pdf-files').files;
+
+            if (files.length < 2) {
+                alert('Velg minst to PDF-filer.');
+                return;
+            }
+
+            const formData = new FormData();
+            for (let i = 0; i < files.length; i++) {
+                formData.append(`pdfs[${i}]`, files[i]);
+            }
+
+            try {
+                const response = await fetch('/combine', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error('Noe gikk galt med sammenslåingen.');
+                }
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'kombinert.pdf';
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.getElementById('output').textContent = 'PDF-filen er ferdig og klar for nedlasting!';
+            } catch (error) {
+                document.getElementById('output').textContent = error.message;
+            }
+        }
+    </script>
+</body>
+</html>
