@@ -3,80 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SamlePDF - Samle flere PDF filer til 1 fil</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>SamlePDF</title>
     <link rel="stylesheet" href="/static/css/styles.css">
 </head>
 <body>
-    <div class="window">
-        <!-- Toppmeny med vindusknapper -->
-        <div class="title-bar">
-            <span class="title">SamlePDF</span>
-            <div class="window-controls">
-                <button class="control-btn min"><i class="fas fa-window-minimize"></i></button>
-                <button class="control-btn max"><i class="fas fa-window-maximize"></i></button>
-                <button class="control-btn close"><i class="fas fa-times"></i></button>
-            </div>
+    <!-- Skrivebordet -->
+    <div class="desktop-icons">
+        <div class="icon datamaskin">
+            <img src="/static/images/datamaskin.jpg" alt="Datamaskin">
+            <span>Datamaskin</span>
         </div>
-
-        <!-- PDF Viewer Layout -->
-        <div class="viewer">
-            <!-- Sidepanel -->
-            <aside class="sidebar">
-                <div class="menu-item" onclick="loadContent('guiden')">
-                    <p>Side 1</p>
-                    <span>Hvordan flette PDF?</span>
-                </div>
-                <div class="menu-item" onclick="loadContent('historien')">
-                    <p>Side 2</p>
-                    <span>Historien om PDF-fletting</span>
-                </div>
-                <div class="menu-item" onclick="loadContent('kontakt')">
-                    <p>Side 3</p>
-                    <span>Kontakt oss</span>
-                </div>
-            </aside>
-
-            <!-- Hovedinnhold -->
-            <main class="pdf-page" id="main-content">
-                <h1>Hvordan flette PDF-filer</h1>
-                <p>Følg trinnene nedenfor for å flette PDF-dokumentene dine:</p>
-                <ol>
-                    <li>
-                        <strong>Last opp PDF-filer:</strong>
-                        Klikk på <input type="file" id="pdf-file" class="btn" name="pdf-file" accept="application/pdf" multiple onchange="addFiles()" required>
-                    </li>
-                    <li>
-                        <strong>Sorter filene:</strong>
-                        Dra og slipp filene i listen nedenfor for å angi ønsket rekkefølge.
-                        <ul class="file-list" id="file-list"></ul>
-                    </li>
-                    <li>
-                        <strong>Flett filene:</strong>
-                        Klikk på <button type="button" class="btn" onclick="uploadAndCombine()">Flett PDF</button> for å kombinere filene.
-                    </li>
-                    <li>
-                        <strong>Kombinert PDF:</strong>
-                        <p>Du kan endre navnet på den kombinerte filen nedenfor og laste den ned:</p>
-                        <div class="output-section">
-                        <div class="file-list-item">
-                            <input type="text" id="output-name" value="kombinert" class="rename-input">
-                            <span class="file-extension">.pdf</span>
-                            <button class="btn" id="download-btn" onclick="downloadCombinedPDF()" disabled>Last ned</button>
-                        </div>
-                    </div>
-
-                    </li>
-                </ol>
-            </main>
+        <div class="icon filer">
+            <img src="/static/images/filer.jpg" alt="Filer">
+            <span>Filer</span>
         </div>
-
-        <!-- Statuslinje -->
-        <div class="status-bar">
-            <span>Side 1 av 1</span>
-            <span>100% Zoom</span>
+        <div class="icon nettleser">
+            <img src="/static/images/nettleser.jpg" alt="Nettleser">
+            <span>Nettleser</span>
+        </div>
+        <div class="icon soppel">
+            <img src="/static/images/soppel.jpg" alt="Søppel">
+            <span>Søppel</span>
+        </div>
+        <div class="icon samlepdf" onclick="openApplication()">
+            <img src="/static/images/SamlePDF.jpg" alt="SamlePDF">
+            <span>SamlePDF</span>
         </div>
     </div>
+
+    <!-- SamlePDF-vindu -->
+    <div id="samlepdf-app" class="window">
+        <div class="title-bar" onmousedown="dragWindow(event)">
+            <span class="title">SamlePDF</span>
+            <div class="window-controls">
+                <button onclick="closeApplication()">X</button>
+            </div>
+        </div>
+        <div class="viewer" style="height: 75vh;">
+            <aside class="sidebar">
+                <div class="menu-item" onclick="loadContent('guiden')">Hvordan flette PDF?</div>
+                <div class="menu-item" onclick="loadContent('historien')">Historien om PDF-fletting</div>
+                <div class="menu-item" onclick="loadContent('kontakt')">Kontakt oss</div>
+            </aside>
+            <main class="pdf-page" id="main-content">
+                <!-- Innhold lastes inn dynamisk her -->
+            </main>
+        </div>
+    </div>
+
+    <!-- Start-linje -->
+    <div class="start-bar">
+        <button class="start-button">Start</button>
+        <div class="task-bar">
+            <div class="task" id="task-samlepdf" style="display: none;">SamlePDF</div>
+        </div>
+        <div class="clock" id="clock">00:00</div>
+    </div>
+
     <script src="/static/js/scripts.js"></script>
+    <script>
+        let isDragging = false;
+        let offsetX = 0;
+        let offsetY = 0;
+        const windowElement = document.getElementById('samlepdf-app');
+        const taskElement = document.getElementById('task-samlepdf');
+
+        function openApplication() {
+            windowElement.style.display = 'block';
+            taskElement.style.display = 'block';
+            loadContent('guiden');
+        }
+
+        function closeApplication() {
+            windowElement.style.display = 'none';
+            taskElement.style.display = 'none';
+        }
+
+        function dragWindow(event) {
+            isDragging = true;
+            offsetX = event.clientX - windowElement.offsetLeft;
+            offsetY = event.clientY - windowElement.offsetTop;
+            document.addEventListener('mousemove', moveWindow);
+            document.addEventListener('mouseup', stopDragging);
+        }
+
+        function moveWindow(event) {
+            if (isDragging) {
+                windowElement.style.left = `${event.clientX - offsetX}px`;
+                windowElement.style.top = `${event.clientY - offsetY}px`;
+            }
+        }
+
+        function stopDragging() {
+            isDragging = false;
+            document.removeEventListener('mousemove', moveWindow);
+            document.removeEventListener('mouseup', stopDragging);
+        }
+
+        function updateClock() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('clock').textContent = `${hours}:${minutes}`;
+        }
+
+        window.onload = () => {
+            openApplication();
+            updateClock();
+            setInterval(updateClock, 1000);
+        };
+    </script>
 </body>
 </html>

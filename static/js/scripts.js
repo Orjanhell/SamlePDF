@@ -1,6 +1,6 @@
 let fileList = [];
 let combinedPDFBlob = null;
-let draggingIndex = null; // Deklarert globalt
+let draggingIndex = null; // Indeksen for fila som dras
 
 // Legg til filer
 function addFiles() {
@@ -56,9 +56,9 @@ function removeFile(index) {
 function handleDragOver(e, targetIndex) {
     e.preventDefault();
     if (draggingIndex !== targetIndex) {
-        const item = fileList.splice(draggingIndex, 1)[0];
-        fileList.splice(targetIndex, 0, item);
-        draggingIndex = targetIndex; // Oppdater startindeksen
+        const draggedFile = fileList.splice(draggingIndex, 1)[0];
+        fileList.splice(targetIndex, 0, draggedFile);
+        draggingIndex = targetIndex;
         updateFileList();
     }
 }
@@ -71,7 +71,6 @@ function handleDragEnd() {
     draggingIndex = null; // Nullstill
 }
 
-
 // Flett PDF-filer
 async function uploadAndCombine() {
     if (fileList.length < 2) {
@@ -81,7 +80,7 @@ async function uploadAndCombine() {
 
     const formData = new FormData();
     fileList.forEach((file, index) => {
-        formData.append(`pdfs[${index}]`, file); // Sørger for riktig struktur
+        formData.append(`pdfs[${index}]`, file);
     });
 
     try {
@@ -94,16 +93,15 @@ async function uploadAndCombine() {
             throw new Error(`Serverfeil: ${response.status}`);
         }
 
-        combinedPDFBlob = await response.blob(); // Lagre blob for nedlasting
+        combinedPDFBlob = await response.blob();
 
         // Aktiver input-feltet og knappen
         document.getElementById('output-name').disabled = false;
         document.getElementById('download-btn').disabled = false;
-    } catch (error) {
+            } catch (error) {
         alert('En feil oppstod: ' + error.message);
     }
 }
-
 
 // Last ned kombinert PDF
 function downloadCombinedPDF() {
@@ -111,26 +109,9 @@ function downloadCombinedPDF() {
     const url = window.URL.createObjectURL(combinedPDFBlob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${fileName}.pdf`; // Legg til .pdf automatisk
+    a.download = `${fileName}.pdf`;
     a.click();
     window.URL.revokeObjectURL(url);
-}
-
-// Fjern filer
-function removeFile(index) {
-    fileList.splice(index, 1);
-    updateFileList();
-}
-
-// Dra-og-slipp-funksjonalitet
-function handleDragOver(e, targetIndex) {
-    e.preventDefault();
-    if (draggingIndex !== targetIndex) {
-        const item = fileList.splice(draggingIndex, 1)[0];
-        fileList.splice(targetIndex, 0, item);
-        draggingIndex = targetIndex; // Oppdater startindeksen
-        updateFileList();
-    }
 }
 
 // Last dynamisk innhold
@@ -145,19 +126,17 @@ function loadContent(page) {
                 <h1>Hvordan flette PDF-filer</h1>
                 <p>Følg trinnene nedenfor for å flette PDF-dokumentene dine:</p>
                 <ol>
-                    <li><strong>Last opp PDF-filer:</strong> Klikk på <input type="file" id="pdf-file" class="btn" name="pdf-file" accept="application/pdf" multiple onchange="addFiles()" required></li>
+                    <li><strong>Last opp PDF-filer:</strong> Klikk på <input type="file" id="pdf-file" class="btn" name="pdf-file" accept="application/pdf" multiple onchange="addFiles()"></li>
                     <li><strong>Sorter filene:</strong> Dra og slipp filene i listen nedenfor for å angi ønsket rekkefølge.
                         <ul class="file-list" id="file-list"></ul>
                     </li>
-                    <li><strong>Flett filene:</strong> Klikk på <button type="button" class="btn" onclick="uploadAndCombine()">Flett PDF</button> for å kombinere filene.</li>
+                    <li><strong>Flett filene:</strong> Klikk på <button type="button" class="btn" onclick="uploadAndCombine()">Flett PDF</button>.</li>
                     <li><strong>Kombinert PDF:</strong>
                         <p>Du kan endre navnet på den kombinerte filen nedenfor og laste den ned:</p>
                         <div class="output-section">
-                            <div class="file-list-item">
-                                <input type="text" id="output-name" value="kombinert" class="rename-input" disabled>
-                                <span>.pdf</span>
-                                <button class="btn" id="download-btn" onclick="downloadCombinedPDF()" disabled>Last ned</button>
-                            </div>
+                            <input type="text" id="output-name" value="kombinert" class="rename-input" disabled>
+                            <span>.pdf</span>
+                            <button class="btn" id="download-btn" onclick="downloadCombinedPDF()" disabled>Last ned</button>
                         </div>
                     </li>
                 </ol>
@@ -192,3 +171,13 @@ function loadContent(page) {
 window.onload = () => {
     loadContent('guiden');
 };
+
+function openApplication() {
+    document.getElementById('samlepdf-app').style.display = 'block';
+
+    const taskBar = document.querySelector('.task-bar');
+    const task = document.createElement('div');
+    task.className = 'task';
+    task.textContent = 'SamlePDF';
+    taskBar.appendChild(task);
+}

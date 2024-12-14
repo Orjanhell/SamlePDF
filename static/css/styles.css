@@ -1,267 +1,252 @@
-/* Generell layout */
-.window {
-    width: 800px;
-    margin: auto;
-    background: #ffffff;
-    border-radius: 5px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+/* Generell styling for Windows 98-look */
+body {
+    background-color: #008080; /* Windows 98 grønn */
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+/* Skrivebordsikoner */
+.desktop-icons {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    display: flex;
+    flex-direction: column; /* Gjør ikonene vertikale */
+    gap: 20px;
+}
+
+.icon {
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    align-items: center;
+    text-align: center;
+    cursor: pointer;
+}
+
+.icon img {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 5px;
+}
+
+.icon span {
+    font-size: 0.9rem;
+    color: white;
+    text-shadow: 1px 1px 2px black;
+}
+
+/* Individuelle ikoner */
+.icon.datamaskin img {
+    content: url('/static/images/datamaskin.jpg');
+}
+
+.icon.filer img {
+    content: url('/static/images/filer.jpg');
+}
+
+.icon.nettleser img {
+    content: url('/static/images/nettleser.jpg');
+}
+
+.icon.soppel img {
+    content: url('/static/images/soppel.jpg');
+}
+
+.icon.samlepdf img {
+    content: url('/static/images/SamlePDF.jpg');
+}
+
+/* Start-linjen */
+.start-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: #c0c0c0;
+    display: flex;
+    align-items: center;
+    border-top: 2px solid #808080;
+    height: 40px;
+    padding: 0 10px;
+}
+
+.start-button {
+    background: #008080;
+    color: white;
+    border: 1px solid black;
+    font-size: 1rem;
+    padding: 5px 10px;
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+.start-button:hover {
+    background: #004040;
+}
+
+.task-bar {
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+.task {
+    background: white;
+    border: 1px solid #808080;
+    padding: 5px 10px;
+    margin-right: auto;
+    cursor: pointer;
+}
+
+.clock {
+    background: white;
+    padding: 5px;
+    border: 1px solid #808080;
+    text-align: center;
+    width: 80px;
+    font-size: 0.9rem;
+}
+
+/* Applikasjonsvindu */
+.window {
+    position: absolute;
+    top: 50px;
+    left: 250px;
+    width: 800px;
+    border: 2px solid black;
+    background: white;
+    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.5);
+}
+
+.title-bar {
+    background: #2d2d2d;
+    color: white;
+    padding: 5px 10px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.title-bar .window-controls button {
+    background: #444;
+    color: white;
+    border: none;
+    padding: 5px;
+    cursor: pointer;
+}
+
+.title-bar .window-controls button:hover {
+    background: #222;
 }
 
 .viewer {
     display: flex;
-    flex: 1;
-    min-height: 500px;
-    max-height: 80vh;
-    overflow-y: auto;
 }
 
-/* Toppmeny */
-.title-bar {
-    background: #2d2d2d;
-    color: #ffffff;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 5px 10px;
-    font-size: 0.9rem;
-}
-
-.window-controls {
-    display: flex;
-    gap: 5px;
-}
-
-.control-btn {
-    background: #444;
-    border: none;
-    color: #fff;
-    padding: 5px;
-    border-radius: 2px;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-
-.control-btn:hover {
-    background: #666;
-}
-
-/* Verktøylinje */
-.toolbar {
-    background: #f4f4f4;
-    padding: 10px;
-    display: flex;
-    gap: 10px;
-    border-bottom: 1px solid #ccc;
-}
-
-/* Sidepanel */
 .sidebar {
-    width: 20%;
-    background: #e9e9e9;
+    width: 200px;
+    background: #c0c0c0;
     padding: 10px;
-    border-right: 1px solid #ccc;
-    overflow-y: auto;
-    font-family: Arial, sans-serif;
+    border-right: 2px solid #808080;
 }
 
 .menu-item {
-    margin-bottom: 15px;
-    padding: 5px;
+    margin-bottom: 10px;
     cursor: pointer;
+    padding: 5px;
+    background: #e0e0e0;
+    border: 1px solid #aaa;
 }
 
-.menu-item p {
-    margin: 0;
-    font-weight: bold;
-    color: #2D616F;
-}
-
-.menu-item span {
-    display: block;
-    margin-left: 15px;
-    font-size: 0.9rem;
-    color: #333333;
-}
-
-/* Fjern hover-effekter på menyen */
 .menu-item:hover {
-    background: none;
+    background: #d0d0d0;
 }
 
-/* PDF-siden */
 .pdf-page {
     flex: 1;
     padding: 20px;
     overflow-y: auto;
+    font-size: 1rem;
+    line-height: 1.6;
 }
 
-.pdf-page h1 {
-    font-size: 2rem;
+h1 {
+    font-size: 1.8rem;
     margin-bottom: 20px;
-    color: #2D616F;
+    color: #2d2d2d;
+    text-align: center;
 }
 
-.pdf-page ol {
+h2 {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+    color: #2d2d2d;
+}
+
+ol {
     padding-left: 20px;
     margin-bottom: 20px;
-    list-style: decimal inside;
-    color: #000000;
 }
 
-.pdf-page ol li {
-    margin-bottom: 20px;
-    line-height: 1.5;
-    color: #000;
+ol li {
+    margin-bottom: 10px;
 }
 
-.pdf-page ol li strong {
-    color: #3F6242;
-}
-
-.pdf-page a {
-    color: #007bff;
-    text-decoration: none;
-}
-
-.pdf-page a:hover {
-    text-decoration: underline;
-}
-
-/* Fil-liste */
 .file-list {
     margin-top: 10px;
     list-style: none;
-    padding: 10px;
-    background: #f9f9f9;
-    border: 1px solid #ddd;
-    min-height: 50px;
-    border-radius: 4px;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
+    padding: 0;
 }
 
 .file-list-item {
+    background: #f4f4f4;
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 5px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px;
-    background: #ffffff;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    transition: background-color 0.3s ease;
 }
 
-/* Interaktiv fil-liste */
-.file-list-item:hover {
-    background-color: #f0f0f0;
-    cursor: grab;
-}
-
-.file-list-item:active {
-    cursor: grabbing;
-    opacity: 0.8;
-}
-
-/* Navnefelt */
-.rename-input {
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    padding: 5px;
-    font-size: 0.9rem;
-    width: 200px;
-    color: #333333;
-    font-family: Arial, sans-serif;
-    display: inline-block; /* Samme linje som .pdf */
-    vertical-align: middle; /* Vertikal justering */
-    margin-right: 5px; /* Avstand til .pdf */
-}
-
-.file-extension {
-    font-size: 0.9rem;
-    color: #333333;
-    margin-left: 0; /* Ingen ekstra avstand */
-    display: inline-block; /* Holder seg på linje med input */
-    vertical-align: middle; /* Matcher input-feltets høyde */
-    line-height: 1.5; /* Juster høyden for å matche input-feltet */
-}
-
-/* Output-seksjon */
 .output-section {
     display: flex;
-    align-items: center; /* Vertikal justering */
-    gap: 10px; /* Mellom input, .pdf og knapp */
-    margin-top: 20px; /* Avstand fra tidligere innhold */
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
 }
 
-/* Juster knapp og deaktiverte stiler */
-.btn, input[type="file"] {
-    background: #f4f4f4;
-    color: #333333;
-    padding: 5px 10px;
+.rename-input {
+    padding: 5px;
     border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: background-color 0.3s ease, border 0.3s ease;
+    border-radius: 5px;
+    width: 200px;
 }
 
-.btn:hover, input[type="file"]:hover {
+.rename-input:disabled {
     background: #e0e0e0;
-    border-color: #aaa;
 }
 
-#download-btn:disabled {
-    background: #e9e9e9;
-    color: #999;
+.btn {
+    padding: 5px 10px;
+    background: #008080;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.btn:hover {
+    background: #006060;
+}
+
+.btn:disabled {
+    background: #ccc;
     cursor: not-allowed;
 }
 
-
-/* Fast .pdf tekst */
-.file-extension {
-    font-size: 0.9rem;
-    color: #333333;
-    margin-left: 2px;
-    cursor: default;
-}
-
-/* Knappestiler */
-.btn, input[type="file"] {
-    display: inline-block;
-    background: #f4f4f4;
-    color: #333333;
-    padding: 5px 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 0.9rem;
-    font-family: Arial, sans-serif;
-    cursor: pointer;
-    transition: background-color 0.3s ease, border 0.3s ease;
-}
-
-.btn:hover, input[type="file"]:hover {
-    background: #e0e0e0;
-    border-color: #aaa;
-}
-
-#download-btn:disabled {
-    background: #e9e9e9;
-    color: #999;
-    cursor: not-allowed;
-}
-
-/* Statuslinje */
-.status-bar {
-    background: #333333;
-    color: #ffffff;
-    font-weight: bold;
-    display: flex;
-    justify-content: space-between;
+.status-message {
+    margin-top: 20px;
+    color: #2d2d2d;
     font-size: 1rem;
-    padding: 10px;
-    border-top: 2px solid #000000;
+    text-align: center;
 }
