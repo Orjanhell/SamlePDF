@@ -86,16 +86,20 @@ body {
 
 .task-bar {
     flex: 1;
-    display: flex;
+    display: flex; /* Bruk flexbox for layout */
     align-items: center;
+    gap: 5px; /* Mellomrom mellom ikonene */
+    justify-content: flex-start; /* Sørger for at elementene ligger til venstre */
 }
 
 .task {
     background: white;
     border: 1px solid #808080;
     padding: 5px 10px;
-    margin-right: auto;
+    margin-right: 5px; /* Legg litt mellomrom mellom ikoner */
     cursor: pointer;
+    display: inline-flex;
+    align-items: center;
 }
 
 .clock {
@@ -111,14 +115,19 @@ body {
 .window {
     position: absolute;
     top: 50px;
-    left: 250px;
+    left: 50px;
     width: 800px;
+    height: auto;
+    min-height: 600px;
     border: 2px solid black;
     background: white;
+    display: none;
     box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.5);
+    z-index: 1; /* Standard z-index for vinduer */
 }
 
 .title-bar {
+    height: 40px; /* Sørg for at tittellinjen tar opp riktig plass */
     background: #2d2d2d;
     color: white;
     padding: 5px 10px;
@@ -140,6 +149,9 @@ body {
 
 .viewer {
     display: flex;
+    flex-direction: row;
+    height: calc(100% - 50px); /* Trekker fra høyden til tittellinjen */
+    overflow: hidden;
 }
 
 .sidebar {
@@ -159,6 +171,7 @@ body {
 
 .menu-item:hover {
     background: #d0d0d0;
+    cursor: pointer; /* Sørger for at det er tydelig klikkbart */
 }
 
 .pdf-page {
@@ -249,4 +262,41 @@ ol li {
     color: #2d2d2d;
     font-size: 1rem;
     text-align: center;
+}
+
+#nettleser-app {
+    width: 800px;
+    height: 600px;
+    position: absolute;
+    top: 50px;
+    left: 300px;
+    border: 2px solid black;
+    background: white;
+    display: none;
+    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.5);
+    z-index: 100; /* Sørger for at det vises foran andre elementer */
+}
+
+#nettleser-app iframe {
+    width: 100%;
+    height: calc(100% - 50px);
+    border: none;
+}
+
+@media (max-width: 768px) {
+    .window {
+        width: 90%;
+        height: 80%;
+        top: 10%;
+        left: 5%;
+    }
+
+    .desktop-icons {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .icon {
+        margin: 10px;
+    }
 }
