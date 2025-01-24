@@ -1,6 +1,7 @@
 let fileList = [];
 let combinedPDFBlob = null;
 let draggingIndex = null; // Indeksen for fila som dras
+let zIndexCounter = 10; // Startverdi for z-index
 
 // Legg til filer
 function addFiles() {
@@ -98,7 +99,7 @@ async function uploadAndCombine() {
         // Aktiver input-feltet og knappen
         document.getElementById('output-name').disabled = false;
         document.getElementById('download-btn').disabled = false;
-            } catch (error) {
+    } catch (error) {
         alert('En feil oppstod: ' + error.message);
     }
 }
@@ -168,17 +169,120 @@ function loadContent(page) {
     mainContent.innerHTML = content;
 }
 
-// Last guiden som standard
-window.onload = () => {
-    loadContent('guiden');
-};
 
-function openApplication() {
-    document.getElementById('samlepdf-app').style.display = 'block';
-
-    const taskBar = document.querySelector('.task-bar');
-    const task = document.createElement('div');
-    task.className = 'task';
-    task.textContent = 'SamlePDF';
-    taskBar.appendChild(task);
+// Bring vindu til front
+function bringToFront(windowId) {
+    const windowElement = document.getElementById(windowId);
+    if (windowElement) {
+        zIndexCounter++;
+        windowElement.style.zIndex = zIndexCounter;
+    }
 }
+
+// Dra-og-slipp funksjonalitet for vinduer
+function dragWindow(event) {
+    const windowElement = event.target.closest('.window');
+    if (!windowElement) return;
+
+    let isDragging = true;
+    let offsetX = event.clientX - windowElement.offsetLeft;
+    let offsetY = event.clientY - windowElement.offsetTop;
+
+    function moveWindow(e) {
+        if (isDragging) {
+            windowElement.style.left = `${e.clientX - offsetX}px`;
+            windowElement.style.top = `${e.clientY - offsetY}px`;
+        }
+    }
+
+    function stopDragging() {
+        isDragging = false;
+        document.removeEventListener('mousemove', moveWindow);
+        document.removeEventListener('mouseup', stopDragging);
+    }
+
+    document.addEventListener('mousemove', moveWindow);
+    document.addEventListener('mouseup', stopDragging);
+}
+
+// Åpne og lukke vinduer
+function openApplication() {
+    const appWindow = document.getElementById('samlepdf-app');
+    appWindow.style.display = 'block';
+    bringToFront('samlepdf-app');
+
+    // Last inn standardinnhold (Hvordan flette PDF)
+    loadContent('guiden'); // Sikrer at siden "Hvordan flette PDF" alltid vises først
+
+    // Legg til oppføring i task-baren hvis den ikke finnes
+    const taskBar = document.querySelector('.task-bar');
+    if (!document.getElementById('task-samlepdf')) {
+        const task = document.createElement('div');
+        task.className = 'task';
+        task.id = 'task-samlepdf';
+        task.textContent = 'SamlePDF';
+        taskBar.appendChild(task);
+
+        // Klikk for å fokusere vinduet
+        task.addEventListener('click', () => {
+            appWindow.style.display = 'block';
+            bringToFront('samlepdf-app');
+        });
+    }
+}
+
+
+function closeApplication() {
+    const appWindow = document.getElementById('samlepdf-app');
+    appWindow.style.display = 'none';
+
+    // Fjern fra task-baren
+    const task = document.getElementById('task-samlepdf');
+    if (task) task.remove();
+}
+
+function openBrowser() {
+    const browserWindow = document.getElementById('nettleser-app');
+    browserWindow.style.display = 'block';
+    bringToFront('nettleser-app');
+
+    // Legg til oppføring i task-baren hvis den ikke finnes
+    const taskBar = document.querySelector('.task-bar');
+    if (!document.getElementById('task-nettleser')) {
+        const task = document.createElement('div');
+        task.className = 'task';
+        task.id = 'task-nettleser';
+        task.textContent = 'Nettleser';
+        taskBar.appendChild(task);
+
+        // Klikk for å fokusere vinduet
+        task.addEventListener('click', () => {
+            browserWindow.style.display = 'block';
+            bringToFront('nettleser-app');
+        });
+    }
+}
+
+function closeBrowser() {
+    const browserWindow = document.getElementById('nettleser-app');
+    browserWindow.style.display = 'none';
+
+    // Fjern fra task-baren
+    const task = document.getElementById('task-nettleser');
+    if (task) task.remove();
+}
+
+// Oppdater klokken
+function updateClock() {
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    document.getElementById('clock').textContent = `${hours}:${minutes}`;
+}
+
+// Last standardinnhold og start klokken
+window.onload = () => {
+    openApplication();
+    updateClock();
+    setInterval(updateClock, 1000);
+};
