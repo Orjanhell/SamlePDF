@@ -30,10 +30,11 @@
             <img src="/static/images/filer.jpg" alt="Filer">
             <span>Filer</span>
         </div>
-        <div class="icon nettleser">
+        <div class="icon nettleser" onclick="openBrowser()">
             <img src="/static/images/nettleser.jpg" alt="Nettleser">
             <span>Nettleser</span>
         </div>
+
         <div class="icon soppel">
             <img src="/static/images/soppel.jpg" alt="Søppel">
             <span>Søppel</span>
@@ -45,7 +46,7 @@
     </div>
 
     <!-- SamlePDF-vindu -->
-    <div id="samlepdf-app" class="window">
+    <div id="samlepdf-app" class="window" style="display: none;" onclick="bringToFront('samlepdf-app')">
         <div class="title-bar" onmousedown="dragWindow(event)">
             <span class="title">SamlePDF</span>
             <div class="window-controls">
@@ -59,58 +60,131 @@
                 <div class="menu-item" onclick="loadContent('kontakt')">Kontakt oss</div>
             </aside>
             <main class="pdf-page" id="main-content">
-                <!-- Innhold lastes inn dynamisk her -->
+                <!-- Dynamisk innhold lastes inn her -->
             </main>
+        </div>
+    </div>
+
+    <!-- Nettleser-vindu -->
+    <div id="nettleser-app" class="window" style="display: none;">
+        <div class="title-bar" onmousedown="dragWindow(event)" onclick="bringToFront('nettleser-app')">
+            <span class="title">Nettleser</span>
+            <div class="window-controls">
+                <button onclick="closeBrowser()">X</button>
+            </div>
+        </div>
+        <div class="viewer">
+            <iframe src="https://brreg-sok.onrender.com/" style="width: 100%; height: calc(100% - 40px); border: none;"></iframe>
         </div>
     </div>
 
     <!-- Start-linje -->
     <div class="start-bar">
         <button class="start-button">Start</button>
-        <div class="task-bar">
-            <div class="task" id="task-samlepdf" style="display: none;">SamlePDF</div>
-        </div>
+        <div class="task-bar"></div>
         <div class="clock" id="clock">00:00</div>
     </div>
 
     <script src="/static/js/scripts.js"></script>
     <script>
-        let isDragging = false;
-        let offsetX = 0;
-        let offsetY = 0;
-        const windowElement = document.getElementById('samlepdf-app');
-        const taskElement = document.getElementById('task-samlepdf');
+        let zIndexCounter = 10;
 
-        function openApplication() {
-            windowElement.style.display = 'block';
-            taskElement.style.display = 'block';
-            loadContent('guiden');
-        }
-
-        function closeApplication() {
-            windowElement.style.display = 'none';
-            taskElement.style.display = 'none';
+        function bringToFront(windowId) {
+            const windowElement = document.getElementById(windowId);
+            if (windowElement) {
+                zIndexCounter++;
+                windowElement.style.zIndex = zIndexCounter;
+            }
         }
 
         function dragWindow(event) {
-            isDragging = true;
-            offsetX = event.clientX - windowElement.offsetLeft;
-            offsetY = event.clientY - windowElement.offsetTop;
+            const windowElement = event.target.closest('.window');
+            if (!windowElement) return;
+
+            let isDragging = true;
+            let offsetX = event.clientX - windowElement.offsetLeft;
+            let offsetY = event.clientY - windowElement.offsetTop;
+
+            function moveWindow(e) {
+                if (isDragging) {
+                    windowElement.style.left = `${e.clientX - offsetX}px`;
+                    windowElement.style.top = `${e.clientY - offsetY}px`;
+                }
+            }
+
+            function stopDragging() {
+                isDragging = false;
+                document.removeEventListener('mousemove', moveWindow);
+                document.removeEventListener('mouseup', stopDragging);
+            }
+
             document.addEventListener('mousemove', moveWindow);
             document.addEventListener('mouseup', stopDragging);
         }
 
-        function moveWindow(event) {
-            if (isDragging) {
-                windowElement.style.left = `${event.clientX - offsetX}px`;
-                windowElement.style.top = `${event.clientY - offsetY}px`;
+        function openApplication() {
+            const appWindow = document.getElementById('samlepdf-app');
+            appWindow.style.display = 'block';
+            bringToFront('samlepdf-app');
+
+            // Last inn standardinnhold (Hvordan flette PDF)
+            loadContent('guiden');
+
+            // Legg til oppføring i task-baren hvis den ikke finnes
+            const taskBar = document.querySelector('.task-bar');
+            if (!document.getElementById('task-samlepdf')) {
+                const task = document.createElement('div');
+                task.className = 'task';
+                task.id = 'task-samlepdf';
+                task.textContent = 'SamlePDF';
+                taskBar.appendChild(task);
+
+                // Klikk for å fokusere vinduet
+                task.addEventListener('click', () => {
+                    appWindow.style.display = 'block';
+                    bringToFront('samlepdf-app');
+                });
             }
         }
 
-        function stopDragging() {
-            isDragging = false;
-            document.removeEventListener('mousemove', moveWindow);
-            document.removeEventListener('mouseup', stopDragging);
+        function closeApplication() {
+            const appWindow = document.getElementById('samlepdf-app');
+            appWindow.style.display = 'none';
+
+            // Fjern fra task-baren
+            const task = document.getElementById('task-samlepdf');
+            if (task) task.remove();
+        }
+
+        function openBrowser() {
+            const browserWindow = document.getElementById('nettleser-app');
+            browserWindow.style.display = 'block';
+            bringToFront('nettleser-app');
+
+            // Legg til oppføring i task-baren hvis den ikke finnes
+            const taskBar = document.querySelector('.task-bar');
+            if (!document.getElementById('task-nettleser')) {
+                const task = document.createElement('div');
+                task.className = 'task';
+                task.id = 'task-nettleser';
+                task.textContent = 'Nettleser';
+                taskBar.appendChild(task);
+
+                // Klikk for å fokusere vinduet
+                task.addEventListener('click', () => {
+                    browserWindow.style.display = 'block';
+                    bringToFront('nettleser-app');
+                });
+            }
+        }
+
+        function closeBrowser() {
+            const browserWindow = document.getElementById('nettleser-app');
+            browserWindow.style.display = 'none';
+
+            // Fjern fra task-baren
+            const task = document.getElementById('task-nettleser');
+            if (task) task.remove();
         }
 
         function updateClock() {
@@ -121,9 +195,9 @@
         }
 
         window.onload = () => {
-            openApplication();
-            updateClock();
-            setInterval(updateClock, 1000);
+            openApplication(); // Åpner SamlePDF-vinduet og laster standardinnhold
+            updateClock(); // Starter klokken
+            setInterval(updateClock, 1000); // Oppdaterer klokken hvert sekund
         };
     </script>
 </body>
