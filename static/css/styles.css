@@ -115,7 +115,7 @@ body {
 .window {
     position: absolute;
     top: 50px;
-    left: 50px;
+    left: 150px;
     width: 800px;
     height: auto;
     min-height: 600px;
