@@ -1,288 +1,491 @@
-let fileList = [];
-let combinedPDFBlob = null;
-let draggingIndex = null; // Indeksen for fila som dras
-let zIndexCounter = 10; // Startverdi for z-index
+(() => {
+    const MAX_FILES = 20;
+    const FIRMASOK_URL = 'https://brreg-sok.onrender.com/';
+    const GOOGLE_URL = 'https://www.google.no/';
 
-// Legg til filer
-function addFiles() {
-    const fileInput = document.getElementById('pdf-file');
-    const files = Array.from(fileInput.files);
+    let zIndexCounter = 20;
+    let fileList = [];
+    let combinedPDFBlob = null;
+    let draggingIndex = null;
+    let activeWindowId = null;
 
-    // Legg til nye filer i fil-listen
-    fileList = fileList.concat(files);
-    updateFileList();
+    const $ = (selector) => document.querySelector(selector);
+    const $$ = (selector) => Array.from(document.querySelectorAll(selector));
 
-    // Tøm input-feltet slik at samme fil kan velges igjen
-    fileInput.value = "";
-}
+    document.addEventListener('DOMContentLoaded', () => {
+        bindDesktopAndWindows();
+        bindPages();
+        bindUpload();
+        bindBrowser();
+        bindStartMenu();
+        updateClock();
+        setInterval(updateClock, 1000);
+        openWindow('samlepdf-window');
+        setPage('merge');
+    });
 
-// Oppdater fil-liste
-function updateFileList() {
-    const fileListContainer = document.getElementById('file-list');
-    fileListContainer.innerHTML = '';
+    function bindDesktopAndWindows() {
+        $$('[data-window-target]').forEach((button) => {
+            button.addEventListener('click', () => {
+                const target = button.dataset.windowTarget;
+                openWindow(target);
 
-    if (fileList.length === 0) {
-        fileListContainer.innerHTML = '<p>Ingen filer valgt.</p>';
-        return;
+                if (button.dataset.page) {
+                    setPage(button.dataset.page);
+                }
+            });
+        });
+
+        $$('[data-close]').forEach((button) => {
+            button.addEventListener('click', (event) => {
+                event.stopPropagation();
+                closeWindow(button.dataset.close);
+            });
+        });
+
+        $$('[data-minimize]').forEach((button) => {
+            button.addEventListener('click', (event) => {
+                event.stopPropagation();
+                minimizeWindow(button.dataset.minimize);
+            });
+        });
+
+        $$('.window').forEach((windowElement) => {
+            windowElement.addEventListener('mousedown', () => bringToFront(windowElement.id));
+        });
+
+        $$('[data-drag-handle]').forEach((handle) => {
+            handle.addEventListener('mousedown', startWindowDrag);
+        });
     }
 
-    // Generer HTML for hver fil
-    fileList.forEach((file, index) => {
-        const fileItem = document.createElement('li');
-        fileItem.className = 'file-list-item';
-        fileItem.draggable = true; // Gjør elementet dra-bart
-        fileItem.dataset.index = index;
-        fileItem.innerHTML = `
-            <span>${file.name}</span>
-            <button class="remove-btn" onclick="removeFile(${index})">Fjern</button>
-        `;
+    function bindPages() {
+        $$('[data-page]').forEach((button) => {
+            button.addEventListener('click', () => {
+                if (button.dataset.windowTarget) {
+                    openWindow(button.dataset.windowTarget);
+                }
+                setPage(button.dataset.page);
+            });
+        });
+    }
 
-        // Legg til drag-and-drop eventer
-        fileItem.addEventListener('dragstart', () => (draggingIndex = index));
-        fileItem.addEventListener('dragover', (e) => handleDragOver(e, index));
-        fileItem.addEventListener('drop', handleDrop);
-        fileItem.addEventListener('dragend', handleDragEnd);
+    function bindUpload() {
+        const input = $('#pdf-file-input');
+        const chooseButton = $('#choose-files-btn');
+        const clearButton = $('#clear-files-btn');
+        const dropZone = $('#drop-zone');
+        const combineButton = $('#combine-btn');
+        const downloadButton = $('#download-btn');
 
-        fileListContainer.appendChild(fileItem);
-    });
-}
+        chooseButton.addEventListener('click', () => input.click());
+        input.addEventListener('change', () => {
+            addFiles(input.files);
+            input.value = '';
+        });
 
-// Fjern en fil fra listen
-function removeFile(index) {
-    fileList.splice(index, 1);
-    updateFileList();
-}
+        clearButton.addEventListener('click', () => {
+            fileList = [];
+            combinedPDFBlob = null;
+            updateFileList();
+            setStatus('Velg minst to PDF-filer for å starte.');
+        });
 
-// Dra-og-slipp-håndtering
-function handleDragOver(e, targetIndex) {
-    e.preventDefault();
-    if (draggingIndex !== targetIndex) {
-        const draggedFile = fileList.splice(draggingIndex, 1)[0];
-        fileList.splice(targetIndex, 0, draggedFile);
-        draggingIndex = targetIndex;
+        ['dragenter', 'dragover'].forEach((eventName) => {
+            dropZone.addEventListener(eventName, (event) => {
+                event.preventDefault();
+                dropZone.classList.add('drag-over');
+            });
+        });
+
+        ['dragleave', 'drop'].forEach((eventName) => {
+            dropZone.addEventListener(eventName, (event) => {
+                event.preventDefault();
+                dropZone.classList.remove('drag-over');
+            });
+        });
+
+        dropZone.addEventListener('drop', (event) => {
+            addFiles(event.dataTransfer.files);
+        });
+
+        combineButton.addEventListener('click', uploadAndCombine);
+        downloadButton.addEventListener('click', downloadCombinedPDF);
+    }
+
+    function bindBrowser() {
+        const frame = $('#browser-frame');
+        const address = $('#browser-address');
+        const notice = $('#browser-notice');
+
+        $('#browser-home-btn').addEventListener('click', () => {
+            address.value = FIRMASOK_URL;
+            frame.src = FIRMASOK_URL;
+            notice.textContent = 'FirmaSøk vises inne i nettleservinduet.';
+        });
+
+        $('#browser-go-btn').addEventListener('click', () => navigateBrowser(address.value));
+
+        address.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                navigateBrowser(address.value);
+            }
+        });
+
+        $('#browser-google-btn').addEventListener('click', () => {
+            window.open(GOOGLE_URL, '_blank', 'noopener,noreferrer');
+            notice.textContent = 'Google åpnes i ny fane fordi Google vanligvis ikke kan vises inne i iframe-vinduer.';
+        });
+
+        $('#browser-new-tab-btn').addEventListener('click', () => {
+            const url = normalizeAddress(address.value);
+            window.open(url, '_blank', 'noopener,noreferrer');
+        });
+    }
+
+    function bindStartMenu() {
+        const startButton = $('#start-button');
+        const startMenu = $('#start-menu');
+
+        startButton.addEventListener('click', (event) => {
+            event.stopPropagation();
+            startMenu.classList.toggle('hidden');
+        });
+
+        document.addEventListener('click', (event) => {
+            if (!startMenu.contains(event.target) && event.target !== startButton) {
+                startMenu.classList.add('hidden');
+            }
+        });
+    }
+
+    function navigateBrowser(rawValue) {
+        const frame = $('#browser-frame');
+        const address = $('#browser-address');
+        const notice = $('#browser-notice');
+        const url = normalizeAddress(rawValue);
+
+        address.value = url;
+
+        if (url.includes('google.') || url.includes('accounts.google.') || rawValue.trim().includes(' ')) {
+            const searchUrl = rawValue.trim().includes(' ')
+                ? `https://www.google.no/search?q=${encodeURIComponent(rawValue.trim())}`
+                : url;
+            window.open(searchUrl, '_blank', 'noopener,noreferrer');
+            notice.textContent = 'Denne adressen åpnes i ny fane. Flere eksterne sider blokkerer visning inne i iframe.';
+            return;
+        }
+
+        frame.src = url;
+        notice.textContent = 'Siden lastes i nettleservinduet. Hvis den blokkerer iframe, bruk “Åpne i ny fane”.';
+    }
+
+    function normalizeAddress(value) {
+        const trimmed = value.trim();
+        if (!trimmed) return FIRMASOK_URL;
+        if (trimmed.includes(' ') || !trimmed.includes('.')) {
+            return `https://www.google.no/search?q=${encodeURIComponent(trimmed)}`;
+        }
+        if (/^https?:\/\//i.test(trimmed)) return trimmed;
+        return `https://${trimmed}`;
+    }
+
+    function addFiles(fileInputList) {
+        const incomingFiles = Array.from(fileInputList || []);
+        const validFiles = [];
+        const rejectedFiles = [];
+
+        incomingFiles.forEach((file) => {
+            const looksLikePdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+            if (looksLikePdf) {
+                validFiles.push(file);
+            } else {
+                rejectedFiles.push(file.name);
+            }
+        });
+
+        const freeSlots = MAX_FILES - fileList.length;
+        const filesToAdd = validFiles.slice(0, freeSlots);
+        fileList = fileList.concat(filesToAdd);
+        combinedPDFBlob = null;
         updateFileList();
-    }
-}
 
-function handleDrop() {
-    draggingIndex = null; // Nullstill
-}
-
-function handleDragEnd() {
-    draggingIndex = null; // Nullstill
-}
-
-// Flett PDF-filer
-async function uploadAndCombine() {
-    if (fileList.length < 2) {
-        alert('Velg minst to PDF-filer.');
-        return;
-    }
-
-    const formData = new FormData();
-    fileList.forEach((file, index) => {
-        formData.append(`pdfs[${index}]`, file);
-    });
-
-    try {
-        const response = await fetch('/combine', {
-            method: 'POST',
-            body: formData,
-        });
-
-        if (!response.ok) {
-            throw new Error(`Serverfeil: ${response.status}`);
-        }
-
-        combinedPDFBlob = await response.blob();
-
-        // Aktiver input-feltet og knappen
-        document.getElementById('output-name').disabled = false;
-        document.getElementById('download-btn').disabled = false;
-    } catch (error) {
-        alert('En feil oppstod: ' + error.message);
-    }
-}
-
-// Last ned kombinert PDF
-function downloadCombinedPDF() {
-    const fileName = document.getElementById('output-name').value || 'kombinert';
-    const url = window.URL.createObjectURL(combinedPDFBlob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${fileName}.pdf`;
-    a.click();
-    window.URL.revokeObjectURL(url);
-}
-
-// Last dynamisk innhold
-function loadContent(page) {
-    const mainContent = document.getElementById('main-content');
-    if (!mainContent) return;
-
-    let content = '';
-    switch (page) {
-        case 'guiden':
-            content = `
-                <h1>Hvordan flette PDF-filer</h1>
-                <p>Følg trinnene nedenfor for å flette PDF-dokumentene dine:</p>
-                <ol>
-                    <li><strong>Last opp PDF-filer:</strong> Klikk på <input type="file" id="pdf-file" class="btn" name="pdf-file" accept="application/pdf" multiple onchange="addFiles()"></li>
-                    <li><strong>Sorter filene:</strong> Dra og slipp filene i listen nedenfor for å angi ønsket rekkefølge.
-                        <ul class="file-list" id="file-list"></ul>
-                    </li>
-                    <li><strong>Flett filene:</strong> Klikk på <button type="button" class="btn" onclick="uploadAndCombine()">Flett PDF</button>.</li>
-                    <li><strong>Kombinert PDF:</strong>
-                        <p>Du kan endre navnet på den kombinerte filen nedenfor og laste den ned:</p>
-                        <div class="output-section">
-                            <input type="text" id="output-name" value="kombinert" class="rename-input" disabled>
-                            <span>.pdf</span>
-                            <button class="btn" id="download-btn" onclick="downloadCombinedPDF()" disabled>Last ned</button>
-                        </div>
-                    </li>
-                </ol>
-            `;
-            break;
-
-        case 'historien':
-            content = `
-                <h1>Historien om PDF-fletting</h1>
-                <p>En gang for lenge siden, i en verden der dokumenter levde adskilt, oppsto behovet for å bringe dem sammen...</p>
-                <p>Slik ble PDF-fletting født, og i dag hjelper det millioner av brukere over hele verden å organisere sine digitale liv.</p>
-            `;
-            break;
-
-        case 'kontakt':
-            content = `
-                <h1>Kontakt oss</h1>
-                <p>Har du spørsmål eller forslag til forbedringer? Send en e-post til:</p>
-                <p><a href="mailto:helland.orjan@gmail.com">helland.orjan@gmail.com</a></p>
-                <p>Besøk også vår andre side, <a href="https://brreg-sok.onrender.com/" target="_blank">FirmaSøk</a>, for å utforske bedrifter.</p>
-            `;
-            break;
-
-        default:
-            content = '<p>Ukjent side</p>';
-            break;
-    }
-
-    mainContent.innerHTML = content;
-}
-
-
-// Bring vindu til front
-function bringToFront(windowId) {
-    const windowElement = document.getElementById(windowId);
-    if (windowElement) {
-        zIndexCounter++;
-        windowElement.style.zIndex = zIndexCounter;
-    }
-}
-
-// Dra-og-slipp funksjonalitet for vinduer
-function dragWindow(event) {
-    const windowElement = event.target.closest('.window');
-    if (!windowElement) return;
-
-    let isDragging = true;
-    let offsetX = event.clientX - windowElement.offsetLeft;
-    let offsetY = event.clientY - windowElement.offsetTop;
-
-    function moveWindow(e) {
-        if (isDragging) {
-            windowElement.style.left = `${e.clientX - offsetX}px`;
-            windowElement.style.top = `${e.clientY - offsetY}px`;
+        if (rejectedFiles.length > 0) {
+            setStatus(`Noen filer ble hoppet over fordi de ikke er PDF: ${rejectedFiles.join(', ')}`, 'error');
+        } else if (validFiles.length > freeSlots) {
+            setStatus(`Maks ${MAX_FILES} filer. De siste filene ble ikke lagt til.`, 'error');
+        } else if (fileList.length < 2) {
+            setStatus('Velg minst to PDF-filer for å starte.');
+        } else {
+            setStatus('Filene er klare. Sorter listen eller trykk “Flett PDF”.');
         }
     }
 
-    function stopDragging() {
-        isDragging = false;
-        document.removeEventListener('mousemove', moveWindow);
-        document.removeEventListener('mouseup', stopDragging);
-    }
+    function updateFileList() {
+        const fileListElement = $('#file-list');
+        const fileCount = $('#file-count');
+        const combineButton = $('#combine-btn');
+        const clearButton = $('#clear-files-btn');
+        const downloadButton = $('#download-btn');
 
-    document.addEventListener('mousemove', moveWindow);
-    document.addEventListener('mouseup', stopDragging);
-}
+        fileListElement.replaceChildren();
+        fileCount.textContent = `${fileList.length} ${fileList.length === 1 ? 'fil' : 'filer'}`;
+        combineButton.disabled = fileList.length < 2;
+        clearButton.disabled = fileList.length === 0;
+        downloadButton.disabled = !combinedPDFBlob;
 
-// Åpne og lukke vinduer
-function openApplication() {
-    const appWindow = document.getElementById('samlepdf-app');
-    appWindow.style.display = 'block';
-    bringToFront('samlepdf-app');
+        if (fileList.length === 0) {
+            const empty = document.createElement('li');
+            empty.className = 'empty-state';
+            empty.textContent = 'Ingen filer valgt.';
+            fileListElement.appendChild(empty);
+            return;
+        }
 
-    // Last inn standardinnhold (Hvordan flette PDF)
-    loadContent('guiden'); // Sikrer at siden "Hvordan flette PDF" alltid vises først
+        fileList.forEach((file, index) => {
+            const item = document.createElement('li');
+            item.className = 'file-list-item';
+            item.draggable = true;
+            item.dataset.index = String(index);
 
-    // Legg til oppføring i task-baren hvis den ikke finnes
-    const taskBar = document.querySelector('.task-bar');
-    if (!document.getElementById('task-samlepdf')) {
-        const task = document.createElement('div');
-        task.className = 'task';
-        task.id = 'task-samlepdf';
-        task.textContent = 'SamlePDF';
-        taskBar.appendChild(task);
+            const fileIndex = document.createElement('span');
+            fileIndex.className = 'file-index';
+            fileIndex.textContent = String(index + 1);
 
-        // Klikk for å fokusere vinduet
-        task.addEventListener('click', () => {
-            appWindow.style.display = 'block';
-            bringToFront('samlepdf-app');
+            const fileName = document.createElement('span');
+            fileName.className = 'file-name';
+            fileName.title = file.name;
+            fileName.textContent = file.name;
+
+            const fileSize = document.createElement('span');
+            fileSize.className = 'file-size';
+            fileSize.textContent = formatFileSize(file.size);
+
+            const removeButton = document.createElement('button');
+            removeButton.className = 'remove-btn';
+            removeButton.type = 'button';
+            removeButton.textContent = 'Fjern';
+            removeButton.addEventListener('click', () => removeFile(index));
+
+            item.append(fileIndex, fileName, fileSize, removeButton);
+
+            item.addEventListener('dragstart', () => {
+                draggingIndex = index;
+                item.classList.add('dragging');
+            });
+            item.addEventListener('dragover', (event) => {
+                event.preventDefault();
+                handleFileReorder(index);
+            });
+            item.addEventListener('dragend', () => {
+                draggingIndex = null;
+                item.classList.remove('dragging');
+            });
+
+            fileListElement.appendChild(item);
         });
     }
-}
 
+    function handleFileReorder(targetIndex) {
+        if (draggingIndex === null || draggingIndex === targetIndex) return;
+        const movedFile = fileList.splice(draggingIndex, 1)[0];
+        fileList.splice(targetIndex, 0, movedFile);
+        draggingIndex = targetIndex;
+        combinedPDFBlob = null;
+        updateFileList();
+        setStatus('Rekkefølgen er oppdatert. Trykk “Flett PDF” på nytt for å lage ny fil.');
+    }
 
-function closeApplication() {
-    const appWindow = document.getElementById('samlepdf-app');
-    appWindow.style.display = 'none';
+    function removeFile(index) {
+        fileList.splice(index, 1);
+        combinedPDFBlob = null;
+        updateFileList();
+        setStatus(fileList.length < 2 ? 'Velg minst to PDF-filer for å starte.' : 'Fil fjernet. Klar for fletting.');
+    }
 
-    // Fjern fra task-baren
-    const task = document.getElementById('task-samlepdf');
-    if (task) task.remove();
-}
+    async function uploadAndCombine() {
+        if (fileList.length < 2) {
+            setStatus('Velg minst to PDF-filer.', 'error');
+            return;
+        }
 
-function openBrowser() {
-    const browserWindow = document.getElementById('nettleser-app');
-    browserWindow.style.display = 'block';
-    bringToFront('nettleser-app');
+        const combineButton = $('#combine-btn');
+        const downloadButton = $('#download-btn');
+        const formData = new FormData();
+        fileList.forEach((file) => formData.append('pdfs', file, file.name));
 
-    // Legg til oppføring i task-baren hvis den ikke finnes
-    const taskBar = document.querySelector('.task-bar');
-    if (!document.getElementById('task-nettleser')) {
-        const task = document.createElement('div');
-        task.className = 'task';
-        task.id = 'task-nettleser';
-        task.textContent = 'Nettleser';
-        taskBar.appendChild(task);
+        combineButton.disabled = true;
+        downloadButton.disabled = true;
+        combinedPDFBlob = null;
+        setStatus('Fletter PDF-filer ...');
 
-        // Klikk for å fokusere vinduet
-        task.addEventListener('click', () => {
-            browserWindow.style.display = 'block';
-            bringToFront('nettleser-app');
+        try {
+            const response = await fetch('/combine', {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (!response.ok) {
+                const message = await response.text();
+                throw new Error(message || `Serverfeil: ${response.status}`);
+            }
+
+            combinedPDFBlob = await response.blob();
+            downloadButton.disabled = false;
+            setStatus('Ferdig. Den samlede PDF-en er klar for nedlasting.', 'success');
+        } catch (error) {
+            setStatus(`En feil oppstod: ${error.message}`, 'error');
+        } finally {
+            combineButton.disabled = fileList.length < 2;
+        }
+    }
+
+    function downloadCombinedPDF() {
+        if (!combinedPDFBlob) {
+            setStatus('Ingen samlet PDF er klar ennå.', 'error');
+            return;
+        }
+
+        const rawName = $('#output-name').value.trim() || 'samlet-pdf';
+        const safeName = rawName.replace(/[^a-zA-Z0-9æøåÆØÅ._-]/g, '-').replace(/-+/g, '-');
+        const url = URL.createObjectURL(combinedPDFBlob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${safeName}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+        setStatus('PDF-en er lastet ned.', 'success');
+    }
+
+    function setStatus(message, type = '') {
+        const status = $('#status-message');
+        status.textContent = message;
+        status.classList.remove('success', 'error');
+        if (type) status.classList.add(type);
+    }
+
+    function formatFileSize(bytes) {
+        if (!Number.isFinite(bytes) || bytes <= 0) return '0 KB';
+        const units = ['B', 'KB', 'MB', 'GB'];
+        let size = bytes;
+        let unitIndex = 0;
+        while (size >= 1024 && unitIndex < units.length - 1) {
+            size /= 1024;
+            unitIndex += 1;
+        }
+        return `${size.toFixed(size >= 10 || unitIndex === 0 ? 0 : 1)} ${units[unitIndex]}`;
+    }
+
+    function setPage(pageName) {
+        $$('.page').forEach((page) => page.classList.toggle('active', page.id === `page-${pageName}`));
+        $$('.sidebar-item').forEach((item) => item.classList.toggle('active', item.dataset.page === pageName));
+    }
+
+    function openWindow(windowId) {
+        const windowElement = document.getElementById(windowId);
+        if (!windowElement) return;
+        windowElement.classList.remove('hidden', 'minimized');
+        bringToFront(windowId);
+        updateTaskbar();
+    }
+
+    function closeWindow(windowId) {
+        const windowElement = document.getElementById(windowId);
+        if (!windowElement) return;
+        windowElement.classList.add('hidden');
+        windowElement.classList.remove('minimized');
+        if (activeWindowId === windowId) activeWindowId = null;
+        updateTaskbar();
+    }
+
+    function minimizeWindow(windowId) {
+        const windowElement = document.getElementById(windowId);
+        if (!windowElement) return;
+        windowElement.classList.add('minimized');
+        if (activeWindowId === windowId) activeWindowId = null;
+        $$('.window').forEach((element) => element.classList.add('inactive'));
+        updateTaskbar();
+    }
+
+    function restoreWindow(windowId) {
+        openWindow(windowId);
+    }
+
+    function bringToFront(windowId) {
+        const windowElement = document.getElementById(windowId);
+        if (!windowElement) return;
+        zIndexCounter += 1;
+        windowElement.style.zIndex = String(zIndexCounter);
+        activeWindowId = windowId;
+        $$('.window').forEach((element) => element.classList.toggle('inactive', element.id !== windowId));
+        updateTaskbar();
+    }
+
+    function updateTaskbar() {
+        const taskBar = $('#task-bar');
+        taskBar.replaceChildren();
+
+        $$('.window').forEach((windowElement) => {
+            if (windowElement.classList.contains('hidden')) return;
+
+            const isMinimized = windowElement.classList.contains('minimized');
+            const task = document.createElement('button');
+            task.type = 'button';
+            task.className = 'task';
+            task.classList.toggle('active', windowElement.id === activeWindowId && !isMinimized);
+            task.classList.toggle('minimized-task', isMinimized);
+            task.textContent = windowElement.dataset.title || windowElement.id;
+            task.addEventListener('click', () => {
+                if (isMinimized) {
+                    restoreWindow(windowElement.id);
+                    return;
+                }
+
+                bringToFront(windowElement.id);
+            });
+            taskBar.appendChild(task);
         });
     }
-}
 
-function closeBrowser() {
-    const browserWindow = document.getElementById('nettleser-app');
-    browserWindow.style.display = 'none';
+    function startWindowDrag(event) {
+        if (window.innerWidth <= 760) return;
+        if (event.button !== 0) return;
 
-    // Fjern fra task-baren
-    const task = document.getElementById('task-nettleser');
-    if (task) task.remove();
-}
+        const windowElement = event.target.closest('.window');
+        if (!windowElement) return;
 
-// Oppdater klokken
-function updateClock() {
-    const now = new Date();
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    document.getElementById('clock').textContent = `${hours}:${minutes}`;
-}
+        bringToFront(windowElement.id);
 
-// Last standardinnhold og start klokken
-window.onload = () => {
-    openApplication();
-    updateClock();
-    setInterval(updateClock, 1000);
-};
+        const startX = event.clientX;
+        const startY = event.clientY;
+        const rect = windowElement.getBoundingClientRect();
+        const initialLeft = rect.left;
+        const initialTop = rect.top;
+
+        const onMove = (moveEvent) => {
+            const nextLeft = initialLeft + (moveEvent.clientX - startX);
+            const nextTop = initialTop + (moveEvent.clientY - startY);
+            windowElement.style.left = `${Math.max(0, nextLeft)}px`;
+            windowElement.style.top = `${Math.max(0, nextTop)}px`;
+        };
+
+        const onUp = () => {
+            document.removeEventListener('mousemove', onMove);
+            document.removeEventListener('mouseup', onUp);
+        };
+
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+    }
+
+    function updateClock() {
+        const clock = $('#clock');
+        if (!clock) return;
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        clock.textContent = `${hours}:${minutes}`;
+    }
+})();
