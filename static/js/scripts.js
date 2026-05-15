@@ -2,6 +2,13 @@
     const MAX_FILES = 20;
     const FIRMASOK_URL = 'https://brreg-sok.onrender.com/';
     const GOOGLE_URL = 'https://www.google.no/';
+    const WINDOW_ICONS = {
+        'samlepdf-window': '/static/images/SamlePDF.png?v=5',
+        'browser-window': '/static/images/nettleser.png?v=5',
+        'computer-window': '/static/images/datamaskin.png?v=5',
+        'files-window': '/static/images/filer.png?v=5',
+        'trash-window': '/static/images/soppel.png?v=5'
+    };
 
     let zIndexCounter = 20;
     let fileList = [];
@@ -18,6 +25,7 @@
         bindUpload();
         bindBrowser();
         bindStartMenu();
+        bindUtilityWindows();
         updateClock();
         setInterval(updateClock, 1000);
         openWindow('samlepdf-window');
@@ -28,12 +36,19 @@
         $$('[data-window-target]').forEach((button) => {
             button.addEventListener('click', () => {
                 const target = button.dataset.windowTarget;
+                selectDesktopIcon(target);
                 openWindow(target);
 
                 if (button.dataset.page) {
                     setPage(button.dataset.page);
                 }
             });
+        });
+
+        $('.desktop').addEventListener('click', (event) => {
+            if (!event.target.closest('.desktop-icon')) {
+                selectDesktopIcon(null);
+            }
         });
 
         $$('[data-close]').forEach((button) => {
@@ -50,12 +65,23 @@
             });
         });
 
+        $$('[data-maximize]').forEach((button) => {
+            button.addEventListener('click', (event) => {
+                event.stopPropagation();
+                toggleMaximize(button.dataset.maximize);
+            });
+        });
+
         $$('.window').forEach((windowElement) => {
             windowElement.addEventListener('mousedown', () => bringToFront(windowElement.id));
         });
 
         $$('[data-drag-handle]').forEach((handle) => {
             handle.addEventListener('mousedown', startWindowDrag);
+            handle.addEventListener('dblclick', (event) => {
+                const windowElement = event.target.closest('.window');
+                if (windowElement) toggleMaximize(windowElement.id);
+            });
         });
     }
 
@@ -150,13 +176,52 @@
         startButton.addEventListener('click', (event) => {
             event.stopPropagation();
             startMenu.classList.toggle('hidden');
+            startButton.classList.toggle('active', !startMenu.classList.contains('hidden'));
+        });
+
+        startMenu.addEventListener('click', (event) => {
+            if (event.target.closest('button')) {
+                startMenu.classList.add('hidden');
+                startButton.classList.remove('active');
+            }
         });
 
         document.addEventListener('click', (event) => {
             if (!startMenu.contains(event.target) && event.target !== startButton) {
                 startMenu.classList.add('hidden');
+                startButton.classList.remove('active');
             }
         });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                startMenu.classList.add('hidden');
+                startButton.classList.remove('active');
+            }
+        });
+    }
+
+    function bindUtilityWindows() {
+        const emptyTrashButton = $('#empty-trash-btn');
+        const trashList = document.querySelector('.trash-list');
+        const trashMessage = $('#trash-message');
+        const refreshButton = $('#computer-refresh-btn');
+
+        if (emptyTrashButton && trashList && trashMessage) {
+            emptyTrashButton.addEventListener('click', () => {
+                trashList.classList.add('empty');
+                trashMessage.textContent = 'Søppelet er tømt. Ingen ekte filer ble skadet i prosessen.';
+            });
+        }
+
+        if (refreshButton) {
+            refreshButton.addEventListener('click', () => {
+                refreshButton.textContent = 'Oppdatert!';
+                setTimeout(() => {
+                    refreshButton.textContent = 'Oppdater';
+                }, 1200);
+            });
+        }
     }
 
     function navigateBrowser(rawValue) {
@@ -378,6 +443,12 @@
         return `${size.toFixed(size >= 10 || unitIndex === 0 ? 0 : 1)} ${units[unitIndex]}`;
     }
 
+    function selectDesktopIcon(windowId) {
+        $$('.desktop-icon').forEach((icon) => {
+            icon.classList.toggle('selected', Boolean(windowId) && icon.dataset.windowTarget === windowId);
+        });
+    }
+
     function setPage(pageName) {
         $$('.page').forEach((page) => page.classList.toggle('active', page.id === `page-${pageName}`));
         $$('.sidebar-item').forEach((item) => item.classList.toggle('active', item.dataset.page === pageName));
@@ -395,7 +466,8 @@
         const windowElement = document.getElementById(windowId);
         if (!windowElement) return;
         windowElement.classList.add('hidden');
-        windowElement.classList.remove('minimized');
+        windowElement.classList.remove('minimized', 'maximized', 'active');
+        updateMaximizeButton(windowElement);
         if (activeWindowId === windowId) activeWindowId = null;
         updateTaskbar();
     }
@@ -405,12 +477,39 @@
         if (!windowElement) return;
         windowElement.classList.add('minimized');
         if (activeWindowId === windowId) activeWindowId = null;
-        $$('.window').forEach((element) => element.classList.add('inactive'));
+        $$('.window').forEach((element) => {
+            element.classList.remove('active');
+            element.classList.add('inactive');
+        });
         updateTaskbar();
     }
 
     function restoreWindow(windowId) {
         openWindow(windowId);
+    }
+
+    function toggleMaximize(windowId) {
+        const windowElement = document.getElementById(windowId);
+        if (!windowElement || window.innerWidth <= 760) return;
+
+        if (windowElement.classList.contains('minimized')) {
+            windowElement.classList.remove('minimized');
+        }
+
+        windowElement.classList.toggle('maximized');
+        updateMaximizeButton(windowElement);
+        bringToFront(windowId);
+        updateTaskbar();
+    }
+
+    function updateMaximizeButton(windowElement) {
+        const button = document.querySelector(`[data-maximize="${windowElement.id}"]`);
+        if (!button) return;
+
+        const isMaximized = windowElement.classList.contains('maximized');
+        button.textContent = isMaximized ? '❐' : '□';
+        button.setAttribute('aria-label', isMaximized ? `Gjenopprett ${windowElement.dataset.title || windowElement.id}` : `Maksimer ${windowElement.dataset.title || windowElement.id}`);
+        button.title = isMaximized ? 'Gjenopprett' : 'Maksimer';
     }
 
     function bringToFront(windowId) {
@@ -419,7 +518,10 @@
         zIndexCounter += 1;
         windowElement.style.zIndex = String(zIndexCounter);
         activeWindowId = windowId;
-        $$('.window').forEach((element) => element.classList.toggle('inactive', element.id !== windowId));
+        $$('.window').forEach((element) => {
+            element.classList.toggle('active', element.id === windowId);
+            element.classList.toggle('inactive', element.id !== windowId);
+        });
         updateTaskbar();
     }
 
@@ -436,7 +538,16 @@
             task.className = 'task';
             task.classList.toggle('active', windowElement.id === activeWindowId && !isMinimized);
             task.classList.toggle('minimized-task', isMinimized);
-            task.textContent = windowElement.dataset.title || windowElement.id;
+
+            const icon = document.createElement('img');
+            icon.src = WINDOW_ICONS[windowElement.id] || '/static/images/SamlePDF.png?v=5';
+            icon.alt = '';
+            icon.setAttribute('aria-hidden', 'true');
+
+            const label = document.createElement('span');
+            label.textContent = windowElement.dataset.title || windowElement.id;
+
+            task.append(icon, label);
             task.addEventListener('click', () => {
                 if (isMinimized) {
                     restoreWindow(windowElement.id);
@@ -454,7 +565,7 @@
         if (event.button !== 0) return;
 
         const windowElement = event.target.closest('.window');
-        if (!windowElement) return;
+        if (!windowElement || windowElement.classList.contains('maximized')) return;
 
         bringToFront(windowElement.id);
 
