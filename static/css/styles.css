@@ -77,6 +77,18 @@ a {
     outline: none;
 }
 
+.desktop-icon.selected {
+    border-color: rgba(255,255,255,0.7);
+    background: rgba(0,0,128,0.35);
+}
+
+.desktop-icon.selected > span:last-child {
+    color: #ffffff;
+    background: #000080;
+    outline: 1px dotted #ffffff;
+    text-shadow: none;
+}
+
 .desktop-icon-img {
     display: block;
     background: var(--desktop);
@@ -84,7 +96,7 @@ a {
     height: 58px;
     object-fit: contain;
     image-rendering: auto;
-    filter: none
+    filter: none;
     user-select: none;
     pointer-events: none;
 }
@@ -254,6 +266,24 @@ a {
     display: none !important;
 }
 
+.window.maximized {
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: calc(100vh - 42px) !important;
+    min-height: 0 !important;
+    box-shadow: none;
+}
+
+.window.maximized .title-bar {
+    cursor: default;
+}
+
+.window.maximized .content-panel,
+.window.maximized .utility-content {
+    min-height: 0;
+}
+
 .window-main {
     top: 16px;
     left: 118px;
@@ -287,6 +317,10 @@ a {
     color: #ffffff;
     background: linear-gradient(90deg, var(--title), #1084d0);
     user-select: none;
+}
+
+.window.active .title-bar {
+    background: linear-gradient(90deg, var(--title), #1084d0);
 }
 
 .window.inactive .title-bar {
@@ -761,6 +795,114 @@ h2 {
     padding: 8px;
 }
 
+
+/* Win98-utkast: tydeligere startmeny, taskbar og ikonmarkering */
+.start-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 82px;
+    padding: 6px 10px;
+}
+
+.start-logo {
+    display: inline-grid;
+    place-items: center;
+    width: 16px;
+    height: 16px;
+    color: #ffffff;
+    background: #000080;
+    font-size: 12px;
+    line-height: 1;
+}
+
+.task {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 120px;
+    height: 30px;
+    padding: 4px 9px;
+    text-align: left;
+}
+
+.task img {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+    background: var(--window);
+    flex: 0 0 auto;
+}
+
+.task span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.start-menu {
+    grid-template-columns: 34px 1fr;
+    gap: 0;
+    padding: 0;
+    min-width: 285px;
+}
+
+.start-menu-side {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 9px 0;
+    color: #ffffff;
+    background: linear-gradient(180deg, #000080, #1084d0);
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    user-select: none;
+}
+
+.start-menu-items {
+    display: grid;
+    padding: 4px;
+}
+
+.start-menu-item {
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    align-items: center;
+    gap: 8px;
+    min-height: 34px;
+    padding: 5px 8px;
+    text-align: left;
+    background: transparent;
+    border: 1px solid transparent;
+}
+
+.start-menu-item img {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    background: var(--window);
+}
+
+.start-menu-item:hover,
+.start-menu-item:focus-visible {
+    color: #ffffff;
+    background: #000080;
+    outline: none;
+}
+
+.start-menu-separator {
+    height: 1px;
+    margin: 4px 2px;
+    background: #808080;
+    border-bottom: 1px solid #ffffff;
+}
+
+.clock {
+    min-width: 94px;
+}
+
 @media (max-width: 760px) {
     body {
         overflow: auto;
@@ -788,12 +930,13 @@ h2 {
     .window,
     .window-main,
     .browser-window,
-    .utility-window {
+    .utility-window,
+    .window.maximized {
         position: relative;
         top: auto !important;
         left: auto !important;
-        width: 100%;
-        height: auto;
+        width: 100% !important;
+        height: auto !important;
         min-height: 0;
         margin: 0 0 10px;
         box-shadow: none;
@@ -865,4 +1008,328 @@ h2 {
     display: inline-grid;
     place-items: center;
     text-decoration: none;
+}
+
+.start-button.active {
+    border-top-color: #404040;
+    border-left-color: #404040;
+    border-right-color: var(--window-light);
+    border-bottom-color: var(--window-light);
+    background: #d8d8d8;
+}
+
+/* v6: mer innhold i Min datamaskin, Filer og Søppel */
+.retro-utility-window {
+    width: min(720px, calc(100vw - 48px));
+    min-height: 460px;
+}
+
+.utility-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 6px;
+    background: var(--window);
+    border-bottom: 1px solid #808080;
+}
+
+.toolbar-button {
+    padding: 4px 10px;
+    font: inherit;
+    background: var(--window);
+    border-top: 2px solid #ffffff;
+    border-left: 2px solid #ffffff;
+    border-right: 2px solid #404040;
+    border-bottom: 2px solid #404040;
+    cursor: pointer;
+}
+
+.toolbar-button:active {
+    border-top-color: #404040;
+    border-left-color: #404040;
+    border-right-color: #ffffff;
+    border-bottom-color: #ffffff;
+}
+
+.utility-content-explorer {
+    display: grid;
+    gap: 10px;
+    min-height: 380px;
+    background: #ece9d8;
+}
+
+.utility-addressbar {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 7px;
+    background: #ffffff;
+    border-top: 2px solid #404040;
+    border-left: 2px solid #404040;
+    border-right: 2px solid #ffffff;
+    border-bottom: 2px solid #ffffff;
+}
+
+.utility-addressbar span {
+    color: #404040;
+}
+
+.computer-summary {
+    display: grid;
+    grid-template-columns: 82px 1fr;
+    gap: 12px;
+    align-items: center;
+    padding: 12px;
+    background: #ffffff;
+    border: 1px solid #808080;
+}
+
+.computer-screen-mini {
+    position: relative;
+    width: 72px;
+    height: 54px;
+    background: #c0c0c0;
+    border-top: 2px solid #ffffff;
+    border-left: 2px solid #ffffff;
+    border-right: 2px solid #404040;
+    border-bottom: 2px solid #404040;
+}
+
+.computer-screen-mini::before {
+    content: "";
+    position: absolute;
+    inset: 9px 10px 14px;
+    background: linear-gradient(135deg, #5bbcff, #0000aa);
+    border: 2px solid #000080;
+}
+
+.computer-screen-mini::after {
+    content: "";
+    position: absolute;
+    left: 26px;
+    bottom: 4px;
+    width: 18px;
+    height: 5px;
+    background: #808080;
+    border-top: 1px solid #404040;
+}
+
+.screen-glow {
+    position: absolute;
+    left: 16px;
+    top: 14px;
+    z-index: 1;
+    width: 15px;
+    height: 8px;
+    background: rgba(255,255,255,0.75);
+}
+
+.muted-text {
+    color: #404040;
+    margin-bottom: 0;
+}
+
+.drive-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.drive-card {
+    display: grid;
+    grid-template-columns: 38px 1fr;
+    align-items: center;
+    gap: 8px;
+    min-height: 58px;
+    padding: 8px;
+    text-align: left;
+    background: #ffffff;
+    border: 1px solid #808080;
+    cursor: pointer;
+}
+
+.drive-card:hover,
+.drive-card:focus-visible,
+.file-table-row:hover,
+.file-table-row:focus-visible,
+.tree-item:hover,
+.tree-item:focus-visible {
+    color: #ffffff;
+    background: #000080;
+    outline: none;
+}
+
+.drive-card small,
+.trash-list-item small {
+    display: block;
+    margin-top: 2px;
+    color: #404040;
+}
+
+.drive-card:hover small,
+.drive-card:focus-visible small,
+.trash-list-item:hover small,
+.trash-list-item:focus-visible small {
+    color: #ffffff;
+}
+
+.drive-icon {
+    font-size: 1.65rem;
+    text-align: center;
+}
+
+.system-panel {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px 14px;
+    padding: 9px;
+    background: #ffffcc;
+    border: 1px solid #b9b96a;
+}
+
+.file-explorer-layout {
+    display: grid;
+    grid-template-columns: 170px 1fr;
+    min-height: 230px;
+    background: #ffffff;
+    border-top: 2px solid #404040;
+    border-left: 2px solid #404040;
+    border-right: 2px solid #ffffff;
+    border-bottom: 2px solid #ffffff;
+}
+
+.folder-tree {
+    display: grid;
+    align-content: start;
+    gap: 2px;
+    padding: 7px;
+    background: #ece9d8;
+    border-right: 1px solid #808080;
+}
+
+.tree-item {
+    padding: 5px 6px;
+    text-align: left;
+    background: transparent;
+    border: 1px solid transparent;
+    cursor: pointer;
+}
+
+.tree-item.active {
+    color: #ffffff;
+    background: #000080;
+}
+
+.file-table {
+    display: grid;
+    align-content: start;
+    padding: 6px;
+}
+
+.file-table-row {
+    display: grid;
+    grid-template-columns: minmax(180px, 1fr) 120px 72px;
+    gap: 8px;
+    min-height: 29px;
+    align-items: center;
+    padding: 4px 6px;
+    text-align: left;
+    background: #ffffff;
+    border: 1px solid transparent;
+    cursor: pointer;
+}
+
+.file-table-head {
+    color: #000000;
+    background: var(--window);
+    border-top: 1px solid #ffffff;
+    border-left: 1px solid #ffffff;
+    border-right: 1px solid #808080;
+    border-bottom: 1px solid #808080;
+    cursor: default;
+    font-weight: bold;
+}
+
+.utility-statusbar {
+    padding: 5px 7px;
+    background: var(--window);
+    border-top: 1px solid #808080;
+}
+
+.trash-content {
+    align-content: start;
+}
+
+.trash-hero {
+    display: grid;
+    grid-template-columns: 84px 1fr;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: #ffffff;
+    border: 1px solid #808080;
+}
+
+.trash-big-icon {
+    display: grid;
+    place-items: center;
+    width: 72px;
+    height: 72px;
+    font-size: 2.7rem;
+    background: #ece9d8;
+    border-top: 2px solid #ffffff;
+    border-left: 2px solid #ffffff;
+    border-right: 2px solid #404040;
+    border-bottom: 2px solid #404040;
+}
+
+.trash-list {
+    display: grid;
+    gap: 5px;
+}
+
+.trash-list-item {
+    display: grid;
+    grid-template-columns: 32px 1fr;
+    gap: 8px;
+    align-items: center;
+    padding: 7px;
+    background: #ffffff;
+    border: 1px solid #808080;
+}
+
+.trash-list.empty .trash-list-item {
+    display: none;
+}
+
+.trash-list.empty::before {
+    content: "Søppelet er tomt. Nydelig opprydding.";
+    display: block;
+    padding: 12px;
+    background: #ffffff;
+    border: 1px solid #808080;
+}
+
+@media (max-width: 760px) {
+    .retro-utility-window {
+        min-height: 0;
+    }
+
+    .utility-toolbar {
+        flex-wrap: wrap;
+    }
+
+    .drive-grid,
+    .system-panel,
+    .computer-summary,
+    .file-explorer-layout,
+    .trash-hero {
+        grid-template-columns: 1fr;
+    }
+
+    .file-table-row {
+        grid-template-columns: 1fr;
+        gap: 2px;
+    }
 }
