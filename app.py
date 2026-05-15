@@ -1,49 +1,94 @@
-from flask import Flask, request, send_file, render_template
+from io import BytesIO
+from flask import Flask, Response, render_template, request, send_from_directory
 from PyPDF2 import PdfMerger
-import os
-import tempfile
-import shutil
 
-app = Flask(__name__, static_folder='static', template_folder='templates')
+app = Flask(__name__, static_folder="static", template_folder="templates")
 
-@app.route('/')
+MAX_FILES = 20
+MAX_TOTAL_UPLOAD_SIZE_MB = 100
+app.config["MAX_CONTENT_LENGTH"] = MAX_TOTAL_UPLOAD_SIZE_MB * 1024 * 1024
+
+
+@app.route("/")
 def index():
-    return render_template('index.html')
+    return render_template("index.html")
 
-@app.route('/combine', methods=['POST'])
+
+@app.route("/historien-om-pdf-fletting")
+def pdf_history():
+    return render_template("historien-om-pdf-fletting.html")
+
+
+@app.route("/kontakt-oss")
+def contact():
+    return render_template("kontakt-oss.html")
+
+
+@app.route("/sitemap.xml")
+def sitemap():
+    return send_from_directory(app.template_folder, "sitemap.xml", mimetype="application/xml")
+
+
+@app.route("/robots.txt")
+def robots():
+    return send_from_directory(app.static_folder, "robots.txt", mimetype="text/plain")
+
+
+@app.route("/combine", methods=["POST"])
 def combine_pdfs():
-    if not request.files:
+    files = request.files.getlist("pdfs")
+
+    if not files:
         return "Ingen filer ble lastet opp.", 400
 
-    # Midlertidig lagring for PDF-fletting
-    temp_dir = tempfile.mkdtemp()
-    output_path = os.path.join(temp_dir, 'kombinert.pdf')
+    if len(files) < 2:
+        return "Velg minst to PDF-filer.", 400
+
+    if len(files) > MAX_FILES:
+        return f"Du kan maksimalt flette {MAX_FILES} PDF-filer om gangen.", 400
+
+    merger = PdfMerger()
+    output = BytesIO()
 
     try:
-        merger = PdfMerger()
-        for key in sorted(request.files.keys(), key=lambda x: int(x.split('[')[1][:-1])):
-            file = request.files[key]
+        for uploaded_file in files:
+            filename = uploaded_file.filename or "uten-navn.pdf"
 
-            # Valider filtype
-            if not file.filename.lower().endswith('.pdf'):
-                return f"Filen {file.filename} er ikke en PDF.", 400
+            if not filename.lower().endswith(".pdf"):
+                return f"Filen {filename} er ikke en PDF.", 400
 
-            # Kontroller at filen ikke er tom
-            if file.stream.read(1) == b"":  # Leser én byte for å bekrefte innhold
-                return f"Filen {file.filename} er tom.", 400
-            file.stream.seek(0)  # Tilbakestill stream-posisjonen
+            header = uploaded_file.stream.read(5)
+            uploaded_file.stream.seek(0)
 
-            merger.append(file.stream)
+            if not header:
+                return f"Filen {filename} er tom.", 400
 
-        merger.write(output_path)
+            if header != b"%PDF-":
+                return f"Filen {filename} ser ikke ut som en gyldig PDF.", 400
+
+            merger.append(uploaded_file.stream)
+
+        merger.write(output)
+        output.seek(0)
+    except Exception:
+        return "En eller flere PDF-filer kunne ikke flettes. Kontroller at filene ikke er passordbeskyttet eller skadet.", 500
+    finally:
         merger.close()
 
-        return send_file(output_path, as_attachment=True, download_name='kombinert.pdf')
-    except Exception as e:
-        return f"En feil oppstod under sammenslåingen: {str(e)}", 500
-    finally:
-        shutil.rmtree(temp_dir, ignore_errors=True)
+    return Response(
+        output.getvalue(),
+        mimetype="application/pdf",
+        headers={
+            "Content-Disposition": "attachment; filename=samlet-pdf.pdf",
+            "Cache-Control": "no-store",
+        },
+    )
 
 
-if __name__ == '__main__':
+@app.errorhandler(413)
+def file_too_large(_error):
+    return f"Filene er for store. Maks total opplastingsstørrelse er {MAX_TOTAL_UPLOAD_SIZE_MB} MB.", 413
+
+
+if __name__ == "__main__":
     app.run(debug=True)
