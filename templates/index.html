@@ -3,202 +3,237 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="google-site-verification" content="2_gGyciqT840uPUQomhZ8gj_52hyEW7dGQuzVBCbXaQ" />
-    <meta name="description" content="SamlePDF - Flett PDF-filer enkelt og raskt. Last opp filene dine, sorter dem, og last ned en kombinert PDF på få sekunder. Gratis og brukervennlig!">
-    <meta name="keywords" content="PDF flette, PDF kombinere, gratis PDF-verktøy, organisere dokumenter, PDF-redigering, SamlePDF">
-
-    <title>SamlePDF</title>
+    <meta name="google-site-verification" content="2_gGyciqT840uPUQomhZ8gj_52hyEW7dGQuzVBCbXaQ">
+    <meta name="description" content="Flett PDF-filer gratis med SamlePDF. Last opp flere PDF-er, sorter rekkefølgen og last ned én samlet PDF direkte i nettleseren.">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="SamlePDF – flett PDF-filer gratis">
+    <meta property="og:description" content="Kombiner flere PDF-filer til én samlet PDF. Enkelt, raskt og gratis.">
+    <meta property="og:type" content="website">
+    <meta name="theme-color" content="#008080">
+    <link rel="canonical" href="https://samlepdf.onrender.com/">
+    <meta property="og:url" content="https://samlepdf.onrender.com/">
+    <title>Flett PDF-filer gratis | SamlePDF</title>
     <link rel="stylesheet" href="/static/css/styles.css">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-YKPXBZD8T3"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-YKPXBZD8T3');
+    </script>
 </head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-YKPXBZD8T3"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-YKPXBZD8T3');
-</script>
 <body>
-    <!-- Skrivebordet -->
-    <div class="desktop-icons">
-        <div class="icon datamaskin">
-            <img src="/static/images/datamaskin.jpg" alt="Datamaskin">
-            <span>Datamaskin</span>
-        </div>
-        <div class="icon filer">
-            <img src="/static/images/filer.jpg" alt="Filer">
-            <span>Filer</span>
-        </div>
-        <div class="icon nettleser" onclick="openBrowser()">
-            <img src="/static/images/nettleser.jpg" alt="Nettleser">
-            <span>Nettleser</span>
+    <div class="desktop" aria-label="SamlePDF skrivebord">
+        <div class="desktop-icons">
+            <button class="desktop-icon" type="button" data-window-target="computer-window">
+                <img class="desktop-icon-img" src="/static/images/datamaskin.png?v=4" alt="" aria-hidden="true">
+                <span>Datamaskin</span>
+            </button>
+            <button class="desktop-icon" type="button" data-window-target="files-window">
+                <img class="desktop-icon-img" src="/static/images/filer.png?v=4" alt="" aria-hidden="true">
+                <span>Filer</span>
+            </button>
+            <button class="desktop-icon" type="button" data-window-target="browser-window">
+                <img class="desktop-icon-img" src="/static/images/nettleser.png?v=4" alt="" aria-hidden="true">
+                <span>Nettleser</span>
+            </button>
+            <button class="desktop-icon" type="button" data-window-target="samlepdf-window">
+                <img class="desktop-icon-img" src="/static/images/SamlePDF.png?v=4" alt="" aria-hidden="true">
+                <span>SamlePDF</span>
+            </button>
+            <button class="desktop-icon" type="button" data-window-target="trash-window">
+                <img class="desktop-icon-img" src="/static/images/soppel.png?v=4" alt="" aria-hidden="true">
+                <span>Søppel</span>
+            </button>
         </div>
 
-        <div class="icon soppel">
-            <img src="/static/images/soppel.jpg" alt="Søppel">
-            <span>Søppel</span>
-        </div>
-        <div class="icon samlepdf" onclick="openApplication()">
-            <img src="/static/images/SamlePDF.jpg" alt="SamlePDF">
-            <span>SamlePDF</span>
-        </div>
-    </div>
-
-    <!-- SamlePDF-vindu -->
-    <div id="samlepdf-app" class="window" style="display: none;" onclick="bringToFront('samlepdf-app')">
-        <div class="title-bar" onmousedown="dragWindow(event)">
-            <span class="title">SamlePDF</span>
-            <div class="window-controls">
-                <button onclick="closeApplication()">X</button>
+        <section id="samlepdf-window" class="window window-main" aria-label="SamlePDF" data-title="SamlePDF">
+            <div class="title-bar" data-drag-handle>
+                <span class="title-bar-text">SamlePDF</span>
+                <div class="window-controls">
+                    <button type="button" class="window-button" data-minimize="samlepdf-window" aria-label="Minimer SamlePDF">_</button>
+                    <button type="button" class="window-button" data-close="samlepdf-window" aria-label="Lukk SamlePDF">×</button>
+                </div>
             </div>
-        </div>
-        <div class="viewer" style="height: 75vh;">
-            <aside class="sidebar">
-                <div class="menu-item" onclick="loadContent('guiden')">Hvordan flette PDF?</div>
-                <div class="menu-item" onclick="loadContent('historien')">Historien om PDF-fletting</div>
-                <div class="menu-item" onclick="loadContent('kontakt')">Kontakt oss</div>
-            </aside>
-            <main class="pdf-page" id="main-content">
-                <!-- Dynamisk innhold lastes inn her -->
-            </main>
-        </div>
-    </div>
 
-    <!-- Nettleser-vindu -->
-    <div id="nettleser-app" class="window" style="display: none;">
-        <div class="title-bar" onmousedown="dragWindow(event)" onclick="bringToFront('nettleser-app')">
-            <span class="title">Nettleser</span>
-            <div class="window-controls">
-                <button onclick="closeBrowser()">X</button>
+            <div class="window-menu" aria-label="Meny">
+                <button type="button" data-page="merge">Flett PDF</button>
+                <button type="button" data-page="guide">Guide</button>
+                <button type="button" data-page="privacy">Personvern</button>
+                <button type="button" data-page="about">Om</button>
+                <button type="button" data-page="contact">Kontakt</button>
             </div>
-        </div>
-        <div class="viewer">
-            <iframe src="https://brreg-sok.onrender.com/" style="width: 100%; height: calc(100% - 40px); border: none;"></iframe>
-        </div>
+
+            <div class="app-layout">
+                <aside class="sidebar" aria-label="Navigasjon">
+                    <button type="button" class="sidebar-item active" data-page="merge">Flett PDF-filer</button>
+                    <button type="button" class="sidebar-item" data-page="guide">Hvordan fungerer det?</button>
+                    <button type="button" class="sidebar-item" data-page="privacy">Personvern og filer</button>
+                    <button type="button" class="sidebar-item" data-page="about">Historien om PDF-fletting</button>
+                    <button type="button" class="sidebar-item" data-page="contact">Kontakt</button>
+                </aside>
+
+                <main class="content-panel">
+                    <section class="page active" id="page-merge">
+                        <div class="hero-block">
+                            <p class="eyebrow">Gratis PDF-verktøy</p>
+                            <h1>Flett PDF-filer direkte i nettleseren</h1>
+                            <p class="lead">Last opp PDF-filene dine, sorter rekkefølgen og last ned én samlet PDF. Enkelt, raskt og uten unødvendig styr.</p>
+                        </div>
+
+                        <div class="upload-card">
+                            <label class="drop-zone" id="drop-zone" for="pdf-file-input">
+                                <span class="drop-icon">📄</span>
+                                <strong>Dra PDF-filer hit</strong>
+                                <span>eller klikk for å velge filer</span>
+                                <input id="pdf-file-input" type="file" accept="application/pdf,.pdf" multiple>
+                            </label>
+
+                            <div class="hint-row">
+                                <span>Maks 20 filer</span>
+                                <span>PDF-filer sorteres i den rekkefølgen du velger</span>
+                            </div>
+
+                            <div class="file-actions">
+                                <button type="button" class="btn" id="choose-files-btn">Velg PDF-filer</button>
+                                <button type="button" class="btn secondary" id="clear-files-btn" disabled>Tøm liste</button>
+                            </div>
+
+                            <div class="file-list-header">
+                                <h2>Valgte filer</h2>
+                                <span id="file-count">0 filer</span>
+                            </div>
+                            <ol class="file-list" id="file-list" aria-live="polite">
+                                <li class="empty-state">Ingen filer valgt.</li>
+                            </ol>
+
+                            <div class="combine-box">
+                                <label for="output-name">Filnavn</label>
+                                <div class="rename-row">
+                                    <input type="text" id="output-name" value="samlet-pdf" autocomplete="off">
+                                    <span>.pdf</span>
+                                </div>
+                                <div class="button-row">
+                                    <button type="button" class="btn primary" id="combine-btn" disabled>Flett PDF</button>
+                                    <button type="button" class="btn" id="download-btn" disabled>Last ned samlet PDF</button>
+                                </div>
+                                <p class="status-message" id="status-message" role="status">Velg minst to PDF-filer for å starte.</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="page" id="page-guide">
+                        <h1>Hvordan flette PDF-filer</h1>
+                        <ol class="numbered-guide">
+                            <li><strong>Last opp PDF-er.</strong> Velg flere filer samtidig eller dra dem inn i opplastingsfeltet.</li>
+                            <li><strong>Sorter rekkefølgen.</strong> Dra filene opp eller ned i listen. Rekkefølgen i listen blir rekkefølgen i den ferdige PDF-en.</li>
+                            <li><strong>Trykk Flett PDF.</strong> SamlePDF lager én samlet fil.</li>
+                            <li><strong>Last ned.</strong> Gi filen et navn og last ned den ferdige PDF-en.</li>
+                        </ol>
+                        <div class="info-box">
+                            Tips: Legg filene inn i samme rekkefølge som du ønsker at de skal vises i sluttfilen. Første fil i listen blir første del av PDF-en.
+                        </div>
+                    </section>
+
+                    <section class="page" id="page-privacy">
+                        <h1>Personvern og filer</h1>
+                        <p>SamlePDF er laget for enkel PDF-fletting. Filene sendes til serveren kun for å lage den samlede PDF-en.</p>
+                        <p>Den oppdaterte løsningen bruker midlertidig behandling i minnet og lagrer ikke dokumentene dine permanent i prosjektmappen.</p>
+                        <div class="info-box">
+                            Ikke bruk offentlige gratisverktøy til svært sensitive dokumenter dersom virksomheten din har egne krav til lagring, databehandleravtale eller intern dokumenthåndtering.
+                        </div>
+                    </section>
+
+                    <section class="page" id="page-about">
+                        <h1>Historien om PDF-fletting</h1>
+                        <p>PDF-formatet gjorde det enklere å dele dokumenter likt på tvers av maskiner, systemer og skrivere. Etter hvert ble behovet for å kombinere tilbud, vedlegg, signerte dokumenter og rapporter til én fil helt vanlig.</p>
+                        <p>SamlePDF løser akkurat den praktiske delen: flere PDF-filer inn, én ryddig PDF ut.</p>
+                    </section>
+
+                    <section class="page" id="page-contact">
+                        <h1>Kontakt</h1>
+                        <p>Har du forslag til forbedringer, feilrettinger eller nye småverktøy?</p>
+                        <p><a href="mailto:helland.orjan@gmail.com">helland.orjan@gmail.com</a></p>
+                        <p>Du kan også åpne FirmaSøk fra nettleserikonet på skrivebordet.</p>
+                    </section>
+                </main>
+            </div>
+        </section>
+
+        <section id="browser-window" class="window browser-window hidden" aria-label="Nettleser" data-title="Nettleser">
+            <div class="title-bar" data-drag-handle>
+                <span class="title-bar-text">Nettleser - FirmaSøk</span>
+                <div class="window-controls">
+                    <button type="button" class="window-button" data-minimize="browser-window" aria-label="Minimer nettleser">_</button>
+                    <button type="button" class="window-button" data-close="browser-window" aria-label="Lukk nettleser">×</button>
+                </div>
+            </div>
+            <div class="browser-toolbar">
+                <button type="button" class="btn small" id="browser-home-btn">FirmaSøk</button>
+                <input id="browser-address" type="text" value="https://brreg-sok.onrender.com/" aria-label="Adressefelt">
+                <button type="button" class="btn small" id="browser-go-btn">Gå</button>
+                <button type="button" class="btn small" id="browser-google-btn">Google</button>
+                <button type="button" class="btn small" id="browser-new-tab-btn">Åpne i ny fane</button>
+            </div>
+            <div class="browser-notice" id="browser-notice">FirmaSøk vises inne i nettleservinduet. Eksterne sider som Google åpnes i ny fane hvis de blokkerer iframe.</div>
+            <iframe id="browser-frame" src="https://brreg-sok.onrender.com/" title="FirmaSøk"></iframe>
+        </section>
+
+        <section id="computer-window" class="window utility-window hidden" aria-label="Datamaskin" data-title="Datamaskin">
+            <div class="title-bar" data-drag-handle>
+                <span class="title-bar-text">Datamaskin</span>
+                <div class="window-controls">
+                    <button type="button" class="window-button" data-minimize="computer-window" aria-label="Minimer Datamaskin">_</button>
+                    <button type="button" class="window-button" data-close="computer-window" aria-label="Lukk Datamaskin">×</button>
+                </div>
+            </div>
+            <div class="utility-content">
+                <h2>Min datamaskin</h2>
+                <p>Dette skrivebordet inneholder SamlePDF og snarvei til FirmaSøk.</p>
+            </div>
+        </section>
+
+        <section id="files-window" class="window utility-window hidden" aria-label="Filer" data-title="Filer">
+            <div class="title-bar" data-drag-handle>
+                <span class="title-bar-text">Filer</span>
+                <div class="window-controls">
+                    <button type="button" class="window-button" data-minimize="files-window" aria-label="Minimer Filer">_</button>
+                    <button type="button" class="window-button" data-close="files-window" aria-label="Lukk Filer">×</button>
+                </div>
+            </div>
+            <div class="utility-content">
+                <h2>Filer</h2>
+                <p>PDF-filene du velger vises i SamlePDF-vinduet før fletting.</p>
+            </div>
+        </section>
+
+        <section id="trash-window" class="window utility-window hidden" aria-label="Søppel" data-title="Søppel">
+            <div class="title-bar" data-drag-handle>
+                <span class="title-bar-text">Søppel</span>
+                <div class="window-controls">
+                    <button type="button" class="window-button" data-minimize="trash-window" aria-label="Minimer Søppel">_</button>
+                    <button type="button" class="window-button" data-close="trash-window" aria-label="Lukk Søppel">×</button>
+                </div>
+            </div>
+            <div class="utility-content">
+                <h2>Søppel</h2>
+                <p>Tomt. Heldigvis.</p>
+            </div>
+        </section>
     </div>
 
-    <!-- Start-linje -->
-    <div class="start-bar">
-        <button class="start-button">Start</button>
-        <div class="task-bar"></div>
+    <nav class="start-menu hidden" id="start-menu" aria-label="Startmeny">
+        <button type="button" data-window-target="samlepdf-window">SamlePDF</button>
+        <button type="button" data-window-target="browser-window">Nettleser / FirmaSøk</button>
+        <button type="button" data-page="privacy" data-window-target="samlepdf-window">Personvern</button>
+    </nav>
+
+    <footer class="start-bar">
+        <button type="button" class="start-button" id="start-button">Start</button>
+        <div class="task-bar" id="task-bar" aria-label="Åpne vinduer"></div>
         <div class="clock" id="clock">00:00</div>
-    </div>
+    </footer>
 
     <script src="/static/js/scripts.js"></script>
-    <script>
-        let zIndexCounter = 10;
-
-        function bringToFront(windowId) {
-            const windowElement = document.getElementById(windowId);
-            if (windowElement) {
-                zIndexCounter++;
-                windowElement.style.zIndex = zIndexCounter;
-            }
-        }
-
-        function dragWindow(event) {
-            const windowElement = event.target.closest('.window');
-            if (!windowElement) return;
-
-            let isDragging = true;
-            let offsetX = event.clientX - windowElement.offsetLeft;
-            let offsetY = event.clientY - windowElement.offsetTop;
-
-            function moveWindow(e) {
-                if (isDragging) {
-                    windowElement.style.left = `${e.clientX - offsetX}px`;
-                    windowElement.style.top = `${e.clientY - offsetY}px`;
-                }
-            }
-
-            function stopDragging() {
-                isDragging = false;
-                document.removeEventListener('mousemove', moveWindow);
-                document.removeEventListener('mouseup', stopDragging);
-            }
-
-            document.addEventListener('mousemove', moveWindow);
-            document.addEventListener('mouseup', stopDragging);
-        }
-
-        function openApplication() {
-            const appWindow = document.getElementById('samlepdf-app');
-            appWindow.style.display = 'block';
-            bringToFront('samlepdf-app');
-
-            // Last inn standardinnhold (Hvordan flette PDF)
-            loadContent('guiden');
-
-            // Legg til oppføring i task-baren hvis den ikke finnes
-            const taskBar = document.querySelector('.task-bar');
-            if (!document.getElementById('task-samlepdf')) {
-                const task = document.createElement('div');
-                task.className = 'task';
-                task.id = 'task-samlepdf';
-                task.textContent = 'SamlePDF';
-                taskBar.appendChild(task);
-
-                // Klikk for å fokusere vinduet
-                task.addEventListener('click', () => {
-                    appWindow.style.display = 'block';
-                    bringToFront('samlepdf-app');
-                });
-            }
-        }
-
-        function closeApplication() {
-            const appWindow = document.getElementById('samlepdf-app');
-            appWindow.style.display = 'none';
-
-            // Fjern fra task-baren
-            const task = document.getElementById('task-samlepdf');
-            if (task) task.remove();
-        }
-
-        function openBrowser() {
-            const browserWindow = document.getElementById('nettleser-app');
-            browserWindow.style.display = 'block';
-            bringToFront('nettleser-app');
-
-            // Legg til oppføring i task-baren hvis den ikke finnes
-            const taskBar = document.querySelector('.task-bar');
-            if (!document.getElementById('task-nettleser')) {
-                const task = document.createElement('div');
-                task.className = 'task';
-                task.id = 'task-nettleser';
-                task.textContent = 'Nettleser';
-                taskBar.appendChild(task);
-
-                // Klikk for å fokusere vinduet
-                task.addEventListener('click', () => {
-                    browserWindow.style.display = 'block';
-                    bringToFront('nettleser-app');
-                });
-            }
-        }
-
-        function closeBrowser() {
-            const browserWindow = document.getElementById('nettleser-app');
-            browserWindow.style.display = 'none';
-
-            // Fjern fra task-baren
-            const task = document.getElementById('task-nettleser');
-            if (task) task.remove();
-        }
-
-        function updateClock() {
-            const now = new Date();
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            document.getElementById('clock').textContent = `${hours}:${minutes}`;
-        }
-
-        window.onload = () => {
-            openApplication(); // Åpner SamlePDF-vinduet og laster standardinnhold
-            updateClock(); // Starter klokken
-            setInterval(updateClock, 1000); // Oppdaterer klokken hvert sekund
-        };
-    </script>
 </body>
 </html>
