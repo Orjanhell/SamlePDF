@@ -26,23 +26,23 @@
     <div class="desktop" aria-label="SamlePDF skrivebord">
         <div class="desktop-icons">
             <button class="desktop-icon" type="button" data-window-target="computer-window">
-                <img class="desktop-icon-img" src="/static/images/datamaskin.png?v=4" alt="" aria-hidden="true">
+                <img class="desktop-icon-img" src="/static/images/datamaskin.png?v=5" alt="" aria-hidden="true">
                 <span>Datamaskin</span>
             </button>
             <button class="desktop-icon" type="button" data-window-target="files-window">
-                <img class="desktop-icon-img" src="/static/images/filer.png?v=4" alt="" aria-hidden="true">
+                <img class="desktop-icon-img" src="/static/images/filer.png?v=5" alt="" aria-hidden="true">
                 <span>Filer</span>
             </button>
             <button class="desktop-icon" type="button" data-window-target="browser-window">
-                <img class="desktop-icon-img" src="/static/images/nettleser.png?v=4" alt="" aria-hidden="true">
+                <img class="desktop-icon-img" src="/static/images/nettleser.png?v=5" alt="" aria-hidden="true">
                 <span>Nettleser</span>
             </button>
             <button class="desktop-icon" type="button" data-window-target="samlepdf-window">
-                <img class="desktop-icon-img" src="/static/images/SamlePDF.png?v=4" alt="" aria-hidden="true">
+                <img class="desktop-icon-img" src="/static/images/SamlePDF.png?v=5" alt="" aria-hidden="true">
                 <span>SamlePDF</span>
             </button>
             <button class="desktop-icon" type="button" data-window-target="trash-window">
-                <img class="desktop-icon-img" src="/static/images/soppel.png?v=4" alt="" aria-hidden="true">
+                <img class="desktop-icon-img" src="/static/images/soppel.png?v=5" alt="" aria-hidden="true">
                 <span>Søppel</span>
             </button>
         </div>
@@ -52,6 +52,7 @@
                 <span class="title-bar-text">SamlePDF</span>
                 <div class="window-controls">
                     <button type="button" class="window-button" data-minimize="samlepdf-window" aria-label="Minimer SamlePDF">_</button>
+                    <button type="button" class="window-button maximize-button" data-maximize="samlepdf-window" aria-label="Maksimer SamlePDF">□</button>
                     <button type="button" class="window-button" data-close="samlepdf-window" aria-label="Lukk SamlePDF">×</button>
                 </div>
             </div>
@@ -165,6 +166,7 @@
                 <span class="title-bar-text">Nettleser - FirmaSøk</span>
                 <div class="window-controls">
                     <button type="button" class="window-button" data-minimize="browser-window" aria-label="Minimer nettleser">_</button>
+                    <button type="button" class="window-button maximize-button" data-maximize="browser-window" aria-label="Maksimer nettleser">□</button>
                     <button type="button" class="window-button" data-close="browser-window" aria-label="Lukk nettleser">×</button>
                 </div>
             </div>
@@ -179,59 +181,170 @@
             <iframe id="browser-frame" src="https://brreg-sok.onrender.com/" title="FirmaSøk"></iframe>
         </section>
 
-        <section id="computer-window" class="window utility-window hidden" aria-label="Datamaskin" data-title="Datamaskin">
+        <section id="computer-window" class="window utility-window retro-utility-window hidden" aria-label="Datamaskin" data-title="Datamaskin">
             <div class="title-bar" data-drag-handle>
                 <span class="title-bar-text">Datamaskin</span>
                 <div class="window-controls">
                     <button type="button" class="window-button" data-minimize="computer-window" aria-label="Minimer Datamaskin">_</button>
+                    <button type="button" class="window-button maximize-button" data-maximize="computer-window" aria-label="Maksimer Datamaskin">□</button>
                     <button type="button" class="window-button" data-close="computer-window" aria-label="Lukk Datamaskin">×</button>
                 </div>
             </div>
-            <div class="utility-content">
-                <h2>Min datamaskin</h2>
-                <p>Dette skrivebordet inneholder SamlePDF og snarvei til FirmaSøk.</p>
+            <div class="utility-toolbar" aria-label="Verktøylinje">
+                <button type="button" class="toolbar-button" data-window-target="samlepdf-window">Åpne</button>
+                <button type="button" class="toolbar-button" data-window-target="browser-window">Nettverk</button>
+                <button type="button" class="toolbar-button" id="computer-refresh-btn">Oppdater</button>
+            </div>
+            <div class="utility-content utility-content-explorer">
+                <div class="utility-addressbar"><span>Adresse:</span><strong>Min datamaskin</strong></div>
+                <div class="computer-summary">
+                    <div class="computer-screen-mini">
+                        <span class="screen-glow"></span>
+                    </div>
+                    <div>
+                        <h2>SamlePDF Desktop</h2>
+                        <p class="muted-text">Et lite retro-skrivebord for PDF-fletting, FirmaSøk og unødvendig mye nostalgi.</p>
+                    </div>
+                </div>
+                <div class="drive-grid" aria-label="Snarveier i Min datamaskin">
+                    <button type="button" class="drive-card" data-window-target="samlepdf-window">
+                        <span class="drive-icon">💾</span>
+                        <span><strong>Diskett (A:)</strong><small>SamlePDF-verktøy</small></span>
+                    </button>
+                    <button type="button" class="drive-card" data-window-target="browser-window">
+                        <span class="drive-icon">🌐</span>
+                        <span><strong>Nettverk</strong><small>FirmaSøk og Brønnøysundregisteret</small></span>
+                    </button>
+                    <button type="button" class="drive-card" data-window-target="files-window">
+                        <span class="drive-icon">📁</span>
+                        <span><strong>Dokumenter</strong><small>Tips, eksempler og snarveier</small></span>
+                    </button>
+                    <button type="button" class="drive-card" data-page="privacy" data-window-target="samlepdf-window">
+                        <span class="drive-icon">🔒</span>
+                        <span><strong>Sikkerhet</strong><small>Personvern og filbehandling</small></span>
+                    </button>
+                </div>
+                <div class="system-panel">
+                    <div><strong>Status:</strong> Klar</div>
+                    <div><strong>Modus:</strong> Windows 98-ish</div>
+                    <div><strong>PDF-motor:</strong> PyPDF2</div>
+                    <div><strong>Humør:</strong> Overraskende stabilt</div>
+                </div>
             </div>
         </section>
 
-        <section id="files-window" class="window utility-window hidden" aria-label="Filer" data-title="Filer">
+        <section id="files-window" class="window utility-window retro-utility-window hidden" aria-label="Filer" data-title="Filer">
             <div class="title-bar" data-drag-handle>
                 <span class="title-bar-text">Filer</span>
                 <div class="window-controls">
                     <button type="button" class="window-button" data-minimize="files-window" aria-label="Minimer Filer">_</button>
+                    <button type="button" class="window-button maximize-button" data-maximize="files-window" aria-label="Maksimer Filer">□</button>
                     <button type="button" class="window-button" data-close="files-window" aria-label="Lukk Filer">×</button>
                 </div>
             </div>
-            <div class="utility-content">
-                <h2>Filer</h2>
-                <p>PDF-filene du velger vises i SamlePDF-vinduet før fletting.</p>
+            <div class="utility-toolbar" aria-label="Verktøylinje">
+                <button type="button" class="toolbar-button" data-window-target="samlepdf-window">Flett PDF</button>
+                <button type="button" class="toolbar-button" data-page="guide" data-window-target="samlepdf-window">Guide</button>
+                <button type="button" class="toolbar-button" data-page="contact" data-window-target="samlepdf-window">Kontakt</button>
+            </div>
+            <div class="utility-content utility-content-explorer">
+                <div class="utility-addressbar"><span>Adresse:</span><strong>Filer / Dokumenter</strong></div>
+                <div class="file-explorer-layout">
+                    <aside class="folder-tree" aria-label="Mappeoversikt">
+                        <button type="button" class="tree-item active">📁 Dokumenter</button>
+                        <button type="button" class="tree-item" data-window-target="samlepdf-window">📄 SamlePDF</button>
+                        <button type="button" class="tree-item" data-window-target="browser-window">🌐 FirmaSøk</button>
+                        <button type="button" class="tree-item" data-page="privacy" data-window-target="samlepdf-window">🔒 Personvern</button>
+                    </aside>
+                    <div class="file-table" role="table" aria-label="Eksempelfiler">
+                        <div class="file-table-row file-table-head" role="row">
+                            <span>Navn</span><span>Type</span><span>Størrelse</span>
+                        </div>
+                        <button type="button" class="file-table-row" data-window-target="samlepdf-window" role="row">
+                            <span>📄 flett-pdf.exe</span><span>Program</span><span>98 KB</span>
+                        </button>
+                        <button type="button" class="file-table-row" data-page="guide" data-window-target="samlepdf-window" role="row">
+                            <span>📘 hvordan-bruke-samlepdf.txt</span><span>Tekstdokument</span><span>4 KB</span>
+                        </button>
+                        <button type="button" class="file-table-row" data-page="privacy" data-window-target="samlepdf-window" role="row">
+                            <span>🔒 personvern-og-filer.doc</span><span>Dokument</span><span>12 KB</span>
+                        </button>
+                        <button type="button" class="file-table-row" data-window-target="browser-window" role="row">
+                            <span>🌐 firmasok.url</span><span>Internett-snarvei</span><span>1 KB</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="utility-statusbar">4 objekt(er) | Klikk på en rad for å åpne snarveien.</div>
             </div>
         </section>
 
-        <section id="trash-window" class="window utility-window hidden" aria-label="Søppel" data-title="Søppel">
+        <section id="trash-window" class="window utility-window retro-utility-window hidden" aria-label="Søppel" data-title="Søppel">
             <div class="title-bar" data-drag-handle>
                 <span class="title-bar-text">Søppel</span>
                 <div class="window-controls">
                     <button type="button" class="window-button" data-minimize="trash-window" aria-label="Minimer Søppel">_</button>
+                    <button type="button" class="window-button maximize-button" data-maximize="trash-window" aria-label="Maksimer Søppel">□</button>
                     <button type="button" class="window-button" data-close="trash-window" aria-label="Lukk Søppel">×</button>
                 </div>
             </div>
-            <div class="utility-content">
-                <h2>Søppel</h2>
-                <p>Tomt. Heldigvis.</p>
+            <div class="utility-toolbar" aria-label="Verktøylinje">
+                <button type="button" class="toolbar-button" id="empty-trash-btn">Tøm søppel</button>
+                <button type="button" class="toolbar-button" data-window-target="files-window">Gjenopprett?</button>
+            </div>
+            <div class="utility-content utility-content-explorer trash-content">
+                <div class="utility-addressbar"><span>Adresse:</span><strong>Søppel</strong></div>
+                <div class="trash-hero">
+                    <div class="trash-big-icon">🗑️</div>
+                    <div>
+                        <h2>Søppel</h2>
+                        <p id="trash-message">Søppelet er nesten tomt. Bare noen gamle PDF-tabber ligger igjen.</p>
+                    </div>
+                </div>
+                <div class="trash-list" aria-label="Innhold i søppel">
+                    <div class="trash-list-item"><span>🧾</span><strong>gammel-versjon-final-final2.pdf</strong><small>Slettet fordi den hadde feil navn</small></div>
+                    <div class="trash-list-item"><span>📄</span><strong>scan_0001_rotert_feil.pdf</strong><small>90 grader feil vei</small></div>
+                    <div class="trash-list-item"><span>💥</span><strong>ikke-bruk-denne.pdf</strong><small>Historisk dokument</small></div>
+                </div>
+                <div class="utility-statusbar">3 objekt(er) | Ingen filer blir faktisk slettet her.</div>
             </div>
         </section>
     </div>
 
     <nav class="start-menu hidden" id="start-menu" aria-label="Startmeny">
-        <button type="button" data-window-target="samlepdf-window">SamlePDF</button>
-        <button type="button" data-window-target="browser-window">Nettleser / FirmaSøk</button>
-        <button type="button" data-page="privacy" data-window-target="samlepdf-window">Personvern</button>
+        <div class="start-menu-side">SamlePDF</div>
+        <div class="start-menu-items">
+            <button type="button" class="start-menu-item" data-window-target="samlepdf-window">
+                <img src="/static/images/SamlePDF.png?v=5" alt="" aria-hidden="true">
+                <span>SamlePDF</span>
+            </button>
+            <button type="button" class="start-menu-item" data-window-target="browser-window">
+                <img src="/static/images/nettleser.png?v=5" alt="" aria-hidden="true">
+                <span>Nettleser / FirmaSøk</span>
+            </button>
+            <button type="button" class="start-menu-item" data-page="privacy" data-window-target="samlepdf-window">
+                <img src="/static/images/filer.png?v=5" alt="" aria-hidden="true">
+                <span>Personvern</span>
+            </button>
+            <div class="start-menu-separator"></div>
+            <button type="button" class="start-menu-item" data-window-target="computer-window">
+                <img src="/static/images/datamaskin.png?v=5" alt="" aria-hidden="true">
+                <span>Min datamaskin</span>
+            </button>
+            <button type="button" class="start-menu-item" data-window-target="files-window">
+                <img src="/static/images/filer.png?v=5" alt="" aria-hidden="true">
+                <span>Filer</span>
+            </button>
+            <button type="button" class="start-menu-item" data-window-target="trash-window">
+                <img src="/static/images/soppel.png?v=5" alt="" aria-hidden="true">
+                <span>Søppel</span>
+            </button>
+        </div>
     </nav>
 
     <footer class="start-bar">
-        <button type="button" class="start-button" id="start-button">Start</button>
+        <button type="button" class="start-button" id="start-button"><span class="start-logo">▦</span> Start</button>
         <div class="task-bar" id="task-bar" aria-label="Åpne vinduer"></div>
-        <div class="clock" id="clock">00:00</div>
+        <div class="clock" id="clock" title="">00:00</div>
     </footer>
 
     <script src="/static/js/scripts.js"></script>
