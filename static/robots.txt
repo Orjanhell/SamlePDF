@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://samlepdf.onrender.com/sitemap.xml
